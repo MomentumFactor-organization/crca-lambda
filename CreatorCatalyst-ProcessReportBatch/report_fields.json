@@ -1,0 +1,10 @@
+{"report_metrics":
+    ["follower_count",
+        "subscriber_count",
+        "content_count",
+        "engagement_rate",
+        "average_likes",
+        "average_views",
+        "creator_location",
+        "contact_details"]
+}
