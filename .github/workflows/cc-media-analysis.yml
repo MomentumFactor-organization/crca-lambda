@@ -1,0 +1,35 @@
+name: Deploy CreatorCatalyst-MediaAnalysis
+
+on:
+  push:
+    paths:
+      - 'CreatorCatalyst-MediaAnalysis/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        cd CreatorCatalyst-MediaAnalysis
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt -t .
+
+    - name: Package and deploy
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'us-west-1'
+      run: |
+        cd CreatorCatalyst-MediaAnalysis
+        zip -r9 ../cc-mediaanalysis.zip .
+        aws lambda update-function-code --function-name CreatorCatalyst-MediaAnalysis --zip-file fileb://../cc-mediaanalysis.zip
