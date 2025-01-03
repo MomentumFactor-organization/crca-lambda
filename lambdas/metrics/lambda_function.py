@@ -4,37 +4,60 @@ import logging
 import psycopg2
 import os
 import time
+
 from datetime import datetime
 from typing import List, Dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def get_cursor():
-    host = os.environ['RDS_HOST']
-    database = os.environ['RDS_DB_NAME']
-    user = os.environ['RDS_USER']
-    password = os.environ['RDS_PASSWORD']
-    port = os.getenv('DB_PORT', '5432')
+region_name = "us-west-1"
+
+def get_secret():
+    secret_name = os.environ("SECRET_NAME")
+
+    client = boto3.client('secretsmanager', region_name=region_name)
 
     try:
-        logger.info(f"Attempting to connect to RDS at {host}:{port} using database {database}")
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except Exception as e:
+        print(f"Error fetching secret: {e}")
+        raise e
+    
+    secret = get_secret_value_response['SecretString']
+    return json.loads(secret)
+
+
+def get_cursor():
+    secret = get_secret()
+
+    rds_host = secret['RDS_HOST']
+    rds_db_name = secret['RDS_DB_NAME']
+    rds_user = secret['RDS_USER']
+    rds_password = secret['RDS_PASSWORD']
+    rds_port = os.getenv('RDS_PORT', '5432')
+
+    try:
+        logger.info(f"Attempting to connect to RDS at {rds_host}:{rds_port} using database {rds_db_name}")
         connection = psycopg2.connect(
-            host=host,
-            database=database,
-            user=user,
-            password=password,
-            port=port
+            host=rds_host,
+            database=rds_db_name,
+            user=rds_user,
+            password=rds_password,
+            port=rds_port
         )
         logger.info("Connection to RDS established successfully")
         return connection, connection.cursor()
 
     except psycopg2.OperationalError as oe:
         logger.error(f"OperationalError while connecting to the database: {oe}")
-        raise
+        raise oe
+
 
 def get_data_from_athena():
-    athena_client = boto3.client("athena", region_name="us-east-1")
+    athena_client = boto3.client("athena", region_name=region_name)
 
     athena_database = os.environ['ATHENA_DATABASE']
     s3_bucket = os.environ['S3_BUCKET']

@@ -1,12 +1,9 @@
-import os
 import boto3
 import botocore
-from io import BytesIO
-import json 
 import hashlib
-# AWS_KEY_ID = os.geten("AWS_KEY_ID")
-# AWS_KEY_SECRET = os.geten("AWS_KEY_SECRET")
+import json 
 
+from io import BytesIO
 
 
 def extract_post(post,metrics_keys,metrics_bucket,posts_bucket):
@@ -45,7 +42,7 @@ def process_post(post_data,post_id,bucket):
     return post_s3_location
 
 def process_metrics(metrics_data,platform_id,creator_username,post_id,snapshot,bucket):
-    s3 = boto3.client("s3",)
+    s3 = boto3.client("s3")
 
     json_payload = json.dumps(metrics_data)
 
