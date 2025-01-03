@@ -1,0 +1,43 @@
+name: Deploy processreportbatch
+
+on:
+  push:
+    branches:
+      - develop
+      - staging
+    paths:
+      - '../../lambdas/process-report-batch/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: ''
+      aws_region:
+        description: 'AWS Region for deployment'
+        required: false
+        default: 'us-west-1'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ github.event.inputs.aws_region || 'us-west-1' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.5.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Determine environment and region
+        id: setup-env
+        run: |
+          # Determine the environment
+          if [[ -n "${{ github.event.inputs.environment }}" ]]; then
+            echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
