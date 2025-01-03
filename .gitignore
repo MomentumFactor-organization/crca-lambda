@@ -4,3 +4,6 @@
 
 # Ignore transient lock info files created by terraform apply
 .terraform.lock.hcl
+
+venv
+python
