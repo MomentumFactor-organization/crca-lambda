@@ -44,7 +44,6 @@ resource "aws_sqs_queue" "creator_catalyst_post_processing" {
 }
 
 # Glue
-
 resource "aws_glue_catalog_database" "creator_catalyst" {
   name = "${var.environment}-creator-catalyst-athena-database"
 }
@@ -297,4 +296,3 @@ resource "aws_lambda_function" "unitary_webhook" {
     }
   }
 }
-

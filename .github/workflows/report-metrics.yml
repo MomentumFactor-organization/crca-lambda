@@ -62,4 +62,3 @@ jobs:
           echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
           rm -f ../../compressed/${ENVIRONMENT}-process-report-batch.zip
           zip -r9 ../../compressed/${ENVIRONMENT}-process-report-batch.zip ../../lambdas/process-report-batch
-          aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-process-report-batch --zip-file fileb://../../compressed/${ENVIRONMENT}-process-report-batch.zip
