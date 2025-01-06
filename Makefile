@@ -2,21 +2,26 @@ TERRAFORM = terraform
 PLAN_DIR = plans
 ENV ?= develop
 
+default: deploy
+
+init:
+	@echo "Initializing Terraform..."
+	$(TERRAFORM) init
+
 fmt:
 	@echo "Formatting Terraform files..."
 	$(TERRAFORM) fmt -recursive
 
-validate:
+validate: init
 	@echo "Validating Terraform configuration..."
 	$(TERRAFORM) validate
 
-plan:
+plan: validate
 	@echo "Generating plan for environment: $(ENV)"
 	@mkdir -p $(PLAN_DIR)/$(ENV)
-	$(TERRAFORM) init
 	$(TERRAFORM) plan -var="environment=$(ENV)" -out=$(PLAN_DIR)/$(ENV)/plan.tfplan
 
-apply:
+apply: plan
 	@echo "Applying plan for environment: $(ENV)"
 	$(TERRAFORM) apply $(PLAN_DIR)/$(ENV)/plan.tfplan
 
@@ -27,3 +32,6 @@ clean:
 clean-all:
 	@echo "Cleaning all plans"
 	@rm -rf $(PLAN_DIR)
+
+deploy: fmt validate plan apply
+	@echo "Deployment completed for environment: $(ENV)"
