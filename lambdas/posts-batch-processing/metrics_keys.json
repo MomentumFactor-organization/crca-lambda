@@ -1,0 +1,4 @@
+{
+    "youtube":["comments","views","likes"],
+    "instagram":["comments","likes","video_views","video_plays"]
+}
