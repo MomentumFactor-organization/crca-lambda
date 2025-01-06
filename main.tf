@@ -137,6 +137,10 @@ resource "aws_lambda_function" "metrics" {
       SECRET_NAME     = "${var.environment}/backend/docker"
     }
   }
+
+  layers = [
+    "arn:aws:lambda:us-west-1:396913719177:layer:psycopg2-layer:1"
+  ]
 }
 
 #
@@ -158,6 +162,10 @@ resource "aws_lambda_function" "post_batch_processing" {
       POSTS_TABLE     = "postmetrics"
     }
   }
+
+  layers = [
+    "arn:aws:lambda:us-west-1:396913719177:layer:requests-layer:1"
+  ]
 }
 
 #
@@ -197,6 +205,10 @@ resource "aws_lambda_function" "posts_processing" {
       POSTS_TABLE     = "postmetrics"
     }
   }
+
+  layers = [
+    "arn:aws:lambda:us-west-1:396913719177:layer:requests-layer:1"
+  ]
 }
 
 #
@@ -224,6 +236,10 @@ resource "aws_lambda_function" "process_report_batch" {
       USER_METRICS_BUCKET   = "usermetrics-posts-creator-catalyst"
     }
   }
+
+  layers = [
+    "arn:aws:lambda:us-west-1:396913719177:layer:requests-layer:1"
+  ]
 }
 
 resource "aws_lambda_event_source_mapping" "report_batches_sqs_trigger" {
@@ -277,7 +293,7 @@ resource "aws_lambda_function" "unitary_webhook" {
     variables = {
       POSTS_BUCKET = "data-creator-catalyst"
       POSTS_TABLE  = "SocialNetworkPosts"
-      TAGS_BUCKET  = "	tags-creator-catalyst"
+      TAGS_BUCKET  = "tags-creator-catalyst"
     }
   }
 }
