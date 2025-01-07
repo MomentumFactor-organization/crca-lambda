@@ -60,8 +60,6 @@ jobs:
         AWS_REGION: ${{ env.AWS_REGION }}
       run: |
         echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
-        mkdir -p ../../compressed/
-        rm -f ../../compressed/${ENVIRONMENT}-postsbatchprocessing.zip
-        cd lambdas/posts-batch-processing
-        zip -r9 ../../compressed/${ENVIRONMENT}-postsbatchprocessing.zip .
-        aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-posts-batch-processing --zip-file fileb://../../compressed/${ENVIRONMENT}-postsbatchprocessing.zip .
+        rm -f ../../compressed/${ENVIRONMENT}-posts-batch-processing.zip
+        zip -r9 ../../compressed/${ENVIRONMENT}-posts-batch-processing.zip ../../lambdas/posts-batch-processing
+        aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-posts-batch-processing --zip-file fileb://../../compressed/${ENVIRONMENT}-posts-batch-processing.zip .
