@@ -16,8 +16,66 @@ variable "environment" {
   type        = string
 }
 
-# S3
+# Data
+data "aws_iam_role" "glue_role" {
+  name = "AWSGlueServiceRole"
+}
 
+data "aws_iam_role" "lambda_role" {
+  name = "${var.environment}-lambda-role"
+}
+
+data "aws_lambda_layer_version" "boto3_layer" {
+  layer_name = "boto3-layer"
+}
+
+resource "aws_lambda_layer_version" "boto3_layer" {
+  count            = data.aws_lambda_layer_version.boto3_layer.arn == "" ? 1 : 0
+  filename         = "layers/compressed/boto3-layer.zip"
+  layer_name       = "boto3-layer"
+  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
+  source_code_hash = filebase64sha256("layers/compressed/boto3-layer.zip")
+}
+
+data "aws_lambda_layer_version" "requests_layer" {
+  layer_name = "requests-layer"
+}
+
+resource "aws_lambda_layer_version" "requests_layer" {
+  count            = data.aws_lambda_layer_version.requests_layer.arn == "" ? 1 : 0
+  filename         = "layers/compressed/requests-layer.zip"
+  layer_name       = "requests-layer"
+  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
+  source_code_hash = filebase64sha256("layers/compressed/requests-layer.zip")
+}
+
+data "aws_lambda_layer_version" "psycopg2_layer" {
+  layer_name = "psycopg2-layer"
+}
+
+resource "aws_lambda_layer_version" "psycopg2_layer" {
+  count            = data.aws_lambda_layer_version.psycopg2_layer.arn == "" ? 1 : 0
+  filename         = "layers/compressed/psycopg2-layer.zip"
+  layer_name       = "psycopg2-layer"
+  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
+  source_code_hash = filebase64sha256("layers/compressed/psycopg2-layer.zip")
+}
+
+# Outputs to use the ARNs of the layers in functions
+output "boto3_layer_arn" {
+  value = coalesce(data.aws_lambda_layer_version.boto3_layer.arn, aws_lambda_layer_version.boto3_layer[0].arn)
+}
+
+output "requests_layer_arn" {
+  value = coalesce(data.aws_lambda_layer_version.requests_layer.arn, aws_lambda_layer_version.requests_layer[0].arn)
+}
+
+output "psycopg2_layer_arn" {
+  value = coalesce(data.aws_lambda_layer_version.psycopg2_layer.arn, aws_lambda_layer_version.psycopg2_layer[0].arn)
+}
+
+
+# S3
 resource "aws_s3_bucket" "creator_catalyst_analytics" {
   bucket = "${var.environment}-creator-catalyst-analytics"
   tags = {
@@ -26,17 +84,15 @@ resource "aws_s3_bucket" "creator_catalyst_analytics" {
 }
 
 # SQS
-
 resource "aws_sqs_queue" "creator_catalyst_queue_cc" {
-  name = "${var.environment}-Creator-Catalyst-Dev-Queue-CC"
+  name = "${var.environment}-dev-queue-cc"
 }
 
 resource "aws_sqs_queue" "creator_catalyst_post_processing" {
-  name = "${var.environment}-CreatorCatalyst-PostProcessing"
+  name = "${var.environment}-post-processing"
 }
 
 # Glue
-
 resource "aws_glue_catalog_database" "creator_catalyst" {
   name = "${var.environment}-creator-catalyst-athena-database"
 }
@@ -70,7 +126,6 @@ resource "aws_s3_object" "glue_script" {
 }
 
 # Athena
-
 resource "aws_athena_workgroup" "creator_workgroup" {
   name = "${var.environment}-creator-workgroup"
 
@@ -82,21 +137,20 @@ resource "aws_athena_workgroup" "creator_workgroup" {
 }
 
 # Lambdas
-
 resource "aws_sqs_queue" "media_processing" {
   name = "${var.environment}-media-processing"
 }
 
 resource "aws_lambda_function" "media_analysis" {
-  filename      = "compressed/media-analysis.zip"
+  filename      = "compressed/${var.environment}-media-analysis.zip"
   function_name = "${var.environment}-media-analysis"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   environment {
     variables = {
-      POSTS_BUCKET         = "develop-creator-catalyst-analytics"
+      POSTS_BUCKET         = "${var.environment}-creator-catalyst-analytics"
       POSTS_TABLE          = "SocialNetworkPosts"
       RESPONSE_WEBHOOK_URL = "https://uyy2v7yn1c.execute-api.us-west-1.amazonaws.com/dev/unitarywh"
       UNITARY_API_KEY      = "21be3bac-dca0-4cc2-b51a-819338a21d84"
@@ -115,11 +169,11 @@ resource "aws_lambda_event_source_mapping" "media_analysis_sqs_trigger" {
 #
 
 resource "aws_lambda_function" "metrics" {
-  filename      = "compressed/metrics.zip"
+  filename      = "compressed/${var.environment}-metrics.zip"
   function_name = "${var.environment}-metrics"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   environment {
     variables = {
@@ -129,16 +183,20 @@ resource "aws_lambda_function" "metrics" {
       SECRET_NAME     = "${var.environment}/backend/docker"
     }
   }
+
+  layers = [
+    aws_lambda_layer_version.psycopg2_layer.arn
+  ]
 }
 
 #
 
 resource "aws_lambda_function" "post_batch_processing" {
-  filename      = "compressed/post-batch-processing.zip"
+  filename      = "compressed/${var.environment}-posts-batch-processing.zip"
   function_name = "${var.environment}-post-batch-processing"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   # Hay que revvisar estos datos
   environment {
@@ -150,16 +208,20 @@ resource "aws_lambda_function" "post_batch_processing" {
       POSTS_TABLE     = "postmetrics"
     }
   }
+
+  layers = [
+    aws_lambda_layer_version.requests_layer.arn
+  ]
 }
 
 #
 
-resource "aws_lambda_function" "post_score_metrics" {
-  filename      = "compressed/post-score-metrics.zip"
-  function_name = "${var.environment}-post-score-metrics"
+resource "aws_lambda_function" "posts_score_metrics" {
+  filename      = "compressed/${var.environment}-posts-score-metrics.zip"
+  function_name = "${var.environment}-posts-score-metrics"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   environment {
     variables = {
@@ -172,12 +234,12 @@ resource "aws_lambda_function" "post_score_metrics" {
 
 #
 
-resource "aws_lambda_function" "post_processing" {
-  filename      = "compressed/post-processing.zip"
-  function_name = "${var.environment}-post-processing"
+resource "aws_lambda_function" "posts_processing" {
+  filename      = "compressed/${var.environment}-posts-processing.zip"
+  function_name = "${var.environment}-posts-processing"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   # Hay que revvisar estos datos
   environment {
@@ -189,6 +251,10 @@ resource "aws_lambda_function" "post_processing" {
       POSTS_TABLE     = "postmetrics"
     }
   }
+
+  layers = [
+    aws_lambda_layer_version.requests_layer.arn
+  ]
 }
 
 #
@@ -198,11 +264,11 @@ resource "aws_sqs_queue" "report_batches" {
 }
 
 resource "aws_lambda_function" "process_report_batch" {
-  filename      = "compressed/process-report-batch.zip"
+  filename      = "compressed/${var.environment}-process-report-batch.zip"
   function_name = "${var.environment}-process-report-batch"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   # Revisar estas variables
   environment {
@@ -216,9 +282,13 @@ resource "aws_lambda_function" "process_report_batch" {
       USER_METRICS_BUCKET   = "usermetrics-posts-creator-catalyst"
     }
   }
+
+  layers = [
+    aws_lambda_layer_version.requests_layer.arn
+  ]
 }
 
-resource "aws_lambda_event_source_mapping" "media_analysis_sqs_trigger" {
+resource "aws_lambda_event_source_mapping" "report_batches_sqs_trigger" {
   event_source_arn = aws_sqs_queue.report_batches.arn
   function_name    = aws_lambda_function.process_report_batch.function_name
   batch_size       = 1
@@ -227,47 +297,18 @@ resource "aws_lambda_event_source_mapping" "media_analysis_sqs_trigger" {
 
 #
 
-
 resource "aws_sqs_queue" "metrics_reporting" {
   name = "${var.environment}-metrics-reporting"
-}
-
-resource "aws_lambda_function" "process_report_batch" {
-  filename      = "compressed/process-report-batch.zip"
-  function_name = "${var.environment}-process-report-batch"
-  handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
-
-  # Revisar estas variables
-  environment {
-    variables = {
-      API_PASSWORD          = "zIiwiZXhwIjoxNzEyOTU"
-      API_URL               = "https://apidev.creatorcatalyst.ai"
-      API_USER              = "autoupdater@momofactor.com"
-      ATHENA_DB             = "${var.environment}-creatorcatalyst-athena-database"
-      ATHENA_RESULTS_BUCKET = aws_s3_bucket.creator_catalyst_analytics.bucket
-      ATHENA_TABLE          = "metrics"
-      USER_METRICS_BUCKET   = "	usermetrics-posts-creator-catalyst"
-    }
-  }
-}
-
-resource "aws_lambda_event_source_mapping" "media_analysis_sqs_trigger" {
-  event_source_arn = aws_sqs_queue.metrics_reporting.arn
-  function_name    = aws_lambda_function.process_report_batch.function_name
-  batch_size       = 1
-  enabled          = true
 }
 
 #
 
 resource "aws_lambda_function" "score_metrics" {
-  filename      = "compressed/score-metrics.zip"
+  filename      = "compressed/${var.environment}-score-metrics.zip"
   function_name = "${var.environment}-score-metrics"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   # Revisar estas variables
   environment {
@@ -286,24 +327,18 @@ resource "aws_lambda_function" "score_metrics" {
 #
 
 resource "aws_lambda_function" "unitary_webhook" {
-  filename      = "compressed/unitary-webhook.zip"
+  filename      = "compressed/${var.environment}-unitary-webhook.zip"
   function_name = "${var.environment}-unitary-webhook"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
-  role          = data.aws_iam_role.glue_role.arn
+  role          = data.aws_iam_role.lambda_role.arn
 
   # Revisar estas variables
   environment {
     variables = {
       POSTS_BUCKET = "data-creator-catalyst"
       POSTS_TABLE  = "SocialNetworkPosts"
-      TAGS_BUCKET  = "	tags-creator-catalyst"
+      TAGS_BUCKET  = "tags-creator-catalyst"
     }
   }
-}
-
-
-# Data
-data "aws_iam_role" "glue_role" {
-  name = "AWSGlueServiceRole"
 }
