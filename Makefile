@@ -25,6 +25,10 @@ apply: plan
 	@echo "Applying plan for environment: $(ENV)"
 	$(TERRAFORM) apply $(PLAN_DIR)/$(ENV)/plan.tfplan
 
+destroy:
+	@echo "Destroying infrastructure for environment: $(ENV)"
+	$(TERRAFORM) destroy -var="environment=$(ENV)"
+
 clean:
 	@echo "Cleaning plans for environment: $(ENV)"
 	@rm -rf $(PLAN_DIR)/$(ENV)
