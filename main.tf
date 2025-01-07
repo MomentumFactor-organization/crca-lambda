@@ -25,6 +25,55 @@ data "aws_iam_role" "lambda_role" {
   name = "${var.environment}-lambda-role"
 }
 
+data "aws_lambda_layer_version" "boto3_layer" {
+  layer_name = "boto3-layer"
+}
+
+resource "aws_lambda_layer_version" "boto3_layer" {
+  count            = data.aws_lambda_layer_version.boto3_layer.arn == "" ? 1 : 0
+  filename         = "layers/compressed/boto3-layer.zip"
+  layer_name       = "boto3-layer"
+  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
+  source_code_hash = filebase64sha256("layers/compressed/boto3-layer.zip")
+}
+
+data "aws_lambda_layer_version" "requests_layer" {
+  layer_name = "requests-layer"
+}
+
+resource "aws_lambda_layer_version" "requests_layer" {
+  count            = data.aws_lambda_layer_version.requests_layer.arn == "" ? 1 : 0
+  filename         = "layers/compressed/requests-layer.zip"
+  layer_name       = "requests-layer"
+  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
+  source_code_hash = filebase64sha256("layers/compressed/requests-layer.zip")
+}
+
+data "aws_lambda_layer_version" "psycopg2_layer" {
+  layer_name = "psycopg2-layer"
+}
+
+resource "aws_lambda_layer_version" "psycopg2_layer" {
+  count            = data.aws_lambda_layer_version.psycopg2_layer.arn == "" ? 1 : 0
+  filename         = "layers/compressed/psycopg2-layer.zip"
+  layer_name       = "psycopg2-layer"
+  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
+  source_code_hash = filebase64sha256("layers/compressed/psycopg2-layer.zip")
+}
+
+# Outputs to use the ARNs of the layers in functions
+output "boto3_layer_arn" {
+  value = coalesce(data.aws_lambda_layer_version.boto3_layer.arn, aws_lambda_layer_version.boto3_layer[0].arn)
+}
+
+output "requests_layer_arn" {
+  value = coalesce(data.aws_lambda_layer_version.requests_layer.arn, aws_lambda_layer_version.requests_layer[0].arn)
+}
+
+output "psycopg2_layer_arn" {
+  value = coalesce(data.aws_lambda_layer_version.psycopg2_layer.arn, aws_lambda_layer_version.psycopg2_layer[0].arn)
+}
+
 
 # S3
 resource "aws_s3_bucket" "creator_catalyst_analytics" {
@@ -77,7 +126,6 @@ resource "aws_s3_object" "glue_script" {
 }
 
 # Athena
-
 resource "aws_athena_workgroup" "creator_workgroup" {
   name = "${var.environment}-creator-workgroup"
 
@@ -89,7 +137,6 @@ resource "aws_athena_workgroup" "creator_workgroup" {
 }
 
 # Lambdas
-
 resource "aws_sqs_queue" "media_processing" {
   name = "${var.environment}-media-processing"
 }
@@ -138,7 +185,7 @@ resource "aws_lambda_function" "metrics" {
   }
 
   layers = [
-    "arn:aws:lambda:us-west-1:396913719177:layer:psycopg2-layer:1"
+    aws_lambda_layer_version.psycopg2_layer.arn
   ]
 }
 
@@ -163,7 +210,7 @@ resource "aws_lambda_function" "post_batch_processing" {
   }
 
   layers = [
-    "arn:aws:lambda:us-west-1:396913719177:layer:requests-layer:1"
+    aws_lambda_layer_version.requests_layer.arn
   ]
 }
 
@@ -206,7 +253,7 @@ resource "aws_lambda_function" "posts_processing" {
   }
 
   layers = [
-    "arn:aws:lambda:us-west-1:396913719177:layer:requests-layer:1"
+    aws_lambda_layer_version.requests_layer.arn
   ]
 }
 
@@ -237,7 +284,7 @@ resource "aws_lambda_function" "process_report_batch" {
   }
 
   layers = [
-    "arn:aws:lambda:us-west-1:396913719177:layer:requests-layer:1"
+    aws_lambda_layer_version.requests_layer.arn
   ]
 }
 
@@ -249,7 +296,6 @@ resource "aws_lambda_event_source_mapping" "report_batches_sqs_trigger" {
 }
 
 #
-
 
 resource "aws_sqs_queue" "metrics_reporting" {
   name = "${var.environment}-metrics-reporting"
