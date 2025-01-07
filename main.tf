@@ -25,55 +25,43 @@ data "aws_iam_role" "lambda_role" {
   name = "${var.environment}-lambda-role"
 }
 
-data "aws_lambda_layer_version" "boto3_layer" {
-  layer_name = "boto3-layer"
-}
-
+# Layer for boto3
 resource "aws_lambda_layer_version" "boto3_layer" {
-  count            = data.aws_lambda_layer_version.boto3_layer.arn == "" ? 1 : 0
-  filename         = "layers/compressed/boto3-layer.zip"
-  layer_name       = "boto3-layer"
-  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
-  source_code_hash = filebase64sha256("layers/compressed/boto3-layer.zip")
+  filename            = "layers/compressed/boto3-layer.zip"
+  layer_name          = "${var.environment}-boto3-layer"
+  compatible_runtimes = ["python3.9", "python3.10"]
+  source_code_hash    = filebase64sha256("layers/compressed/boto3-layer.zip")
+  description         = "Layer for boto3 library"
 }
 
-data "aws_lambda_layer_version" "requests_layer" {
-  layer_name = "requests-layer"
-}
-
+# Layer for requests
 resource "aws_lambda_layer_version" "requests_layer" {
-  count            = data.aws_lambda_layer_version.requests_layer.arn == "" ? 1 : 0
-  filename         = "layers/compressed/requests-layer.zip"
-  layer_name       = "requests-layer"
-  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
-  source_code_hash = filebase64sha256("layers/compressed/requests-layer.zip")
+  filename            = "layers/compressed/requests-layer.zip"
+  layer_name          = "${var.environment}-requests-layer"
+  compatible_runtimes = ["python3.9", "python3.10"]
+  source_code_hash    = filebase64sha256("layers/compressed/requests-layer.zip")
 }
 
-data "aws_lambda_layer_version" "psycopg2_layer" {
-  layer_name = "psycopg2-layer"
-}
-
+# Layer for psycopg2
 resource "aws_lambda_layer_version" "psycopg2_layer" {
-  count            = data.aws_lambda_layer_version.psycopg2_layer.arn == "" ? 1 : 0
-  filename         = "layers/compressed/psycopg2-layer.zip"
-  layer_name       = "psycopg2-layer"
-  compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
-  source_code_hash = filebase64sha256("layers/compressed/psycopg2-layer.zip")
+  filename            = "layers/compressed/psycopg2-layer.zip"
+  layer_name          = "${var.environment}-psycopg2-layer"
+  compatible_runtimes = ["python3.9", "python3.10"]
+  source_code_hash    = filebase64sha256("layers/compressed/psycopg2-layer.zip")
 }
 
 # Outputs to use the ARNs of the layers in functions
 output "boto3_layer_arn" {
-  value = coalesce(data.aws_lambda_layer_version.boto3_layer.arn, aws_lambda_layer_version.boto3_layer[0].arn)
+  value = aws_lambda_layer_version.boto3_layer.arn
 }
 
 output "requests_layer_arn" {
-  value = coalesce(data.aws_lambda_layer_version.requests_layer.arn, aws_lambda_layer_version.requests_layer[0].arn)
+  value = aws_lambda_layer_version.requests_layer.arn
 }
 
 output "psycopg2_layer_arn" {
-  value = coalesce(data.aws_lambda_layer_version.psycopg2_layer.arn, aws_lambda_layer_version.psycopg2_layer[0].arn)
+  value = aws_lambda_layer_version.psycopg2_layer.arn
 }
-
 
 # S3
 resource "aws_s3_bucket" "creator_catalyst_analytics" {
