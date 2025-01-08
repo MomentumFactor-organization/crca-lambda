@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - staging
+      - main
     paths:
       - '../../lambdas/posts-processing/**'
   workflow_dispatch:
@@ -37,16 +38,18 @@ jobs:
       - name: Determine environment and region
         id: setup-env
         run: |
-          # Determine the environment
+          # Determinar el ambiente basado en la rama
           if [[ -n "${{ github.event.inputs.environment }}" ]]; then
             echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
           elif [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
             echo "ENVIRONMENT=staging" >> $GITHUB_ENV
           else
             echo "ENVIRONMENT=develop" >> $GITHUB_ENV
           fi
-  
-          # Determine the AWS region
+        
+          # Determinar la región de AWS
           if [[ -n "${{ github.event.inputs.aws_region }}" ]]; then
             echo "AWS_REGION=${{ github.event.inputs.aws_region }}" >> $GITHUB_ENV
           else
