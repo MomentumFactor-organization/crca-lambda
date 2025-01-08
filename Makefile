@@ -1,6 +1,6 @@
 TERRAFORM = terraform
 PLAN_DIR = plans
-ENV ?= develop
+ENV ?= production
 
 default: deploy
 
