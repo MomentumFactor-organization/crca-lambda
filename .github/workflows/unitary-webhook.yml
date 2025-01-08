@@ -5,7 +5,7 @@ on:
     branches:
       - develop
       - staging
-      - main
+      - production
     paths:
       - '../../lambdas/unitary-webhook/**'
   workflow_dispatch:
@@ -41,7 +41,7 @@ jobs:
           # Determinar el ambiente basado en la rama
           if [[ -n "${{ github.event.inputs.environment }}" ]]; then
             echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-          elif [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+          elif [[ "${GITHUB_REF_NAME}" == "production" ]]; then
             echo "ENVIRONMENT=production" >> $GITHUB_ENV
           elif [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
             echo "ENVIRONMENT=staging" >> $GITHUB_ENV
