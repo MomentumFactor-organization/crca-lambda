@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - staging
+      - production
     paths:
       - '../../lambdas/posts-processing/**'
   workflow_dispatch:
@@ -40,6 +41,8 @@ jobs:
           # Determine the environment
           if [[ -n "${{ github.event.inputs.environment }}" ]]; then
             echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF_NAME}" == "production" ]]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
           elif [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
             echo "ENVIRONMENT=staging" >> $GITHUB_ENV
           else
