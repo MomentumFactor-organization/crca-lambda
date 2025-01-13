@@ -7,8 +7,8 @@ A layer its a library to be use for a lambda function, and could be large as 50 
 In order to create a layer we must create a subfolder inside the layer folder.
 
 ```bash
-mkdir -p layers/<layer-name>
-cd layers/<layer-name>
+mkdir -p layer/<layer-name>
+cd layer/<layer-name>
 ```
 
 Once inside the folder, we need to create a virtual environment which will contain the library and activate the environment.
@@ -21,7 +21,7 @@ source venv/bin/activate
 Now, we need to install the library that we will be using, that can be installed with pip.
 
 ```bash
-pip install <library> -t layers/<layer-name>/python/
+pip install <library> -t layer/<layer-name>/python/
 ```
 
 Before deactivate the resource we will need to create the requirements.txt file.
