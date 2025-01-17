@@ -47,34 +47,6 @@ def lambda_handler(event, context):
     for post in  posts:
         post["snapshot"] = publish_date
         sqs.send_message(QueueUrl=POST_BATCH_SQS,MessageBody=json.dumps(post))
-        # if post["original_url"] != None:
-        #     post["snapshot"] = publish_date
-        #     post_snapshot = publish_date
-        #     post_data = json.dumps(post)
-        #     creator_id = post["creator_id"] if "creator_id" in post.keys() else "" 
-        #     post_filename = f"{post_snapshot}.json"
-        #     post_id = extract_post(post,metrics_keys,POSTS_METRICS_BUCKET,POSTS_DATA_BUCKET)
-        #     try:
-        #         dynamodb.put_item(Item=
-        #             {"platform":{
-        #                 "S":post["platform_id"]
-        #             },"username":{
-        #                 "S":post["creator_user"]
-        #             },"url":{
-        #                 "S":post["original_url"]
-        #             },"post_id":{
-        #                 "S":post_id
-        #             },"creator_id":{
-        #                 "S":str(creator_id)
-        #             }
-        #             },ConditionExpression="attribute_not_exists(id)",
-        #             TableName=POSTS_TABLE)
-        #         posts_processed.append(post_id)
-        #     except botocore.exceptions.ClientError as e:
-        #         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
-        #             print('Post Already Exists')
-        #         else:
-        #             raise e
     
     sqs.send_message(QueueUrl=METRICS_REPORT_SQS,MessageBody=json.dumps({"username":username,"platform":platform}))
     return {

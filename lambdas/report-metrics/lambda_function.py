@@ -7,16 +7,41 @@ import pandas as pd
 from time import sleep
 from metrics_calculations import aggregate_data, calculate_metrics
 
-USER_METRICS_BUCKET = os.getenv("USER_METRICS_BUCKET")
-ATHENA_RESULTS_BUCKET = os.getenv("ATHENA_RESULTS_BUCKET")
+# USER_METRICS_BUCKET = os.getenv("USER_METRICS_BUCKET")
+# ATHENA_RESULTS_BUCKET = os.getenv("ATHENA_RESULTS_BUCKET")
+
+
+region_name = "us-west-1"
+
+def get_secret():
+    secret_name = os.environ("SECRET_NAME")
+
+    client = boto3.client('secretsmanager', region_name=region_name)
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except Exception as e:
+        print(f"Error fetching secret: {e}")
+        raise e
+    
+    secret = get_secret_value_response['SecretString']
+    return json.loads(secret)
+
+
+METRICS_BUCKET = os.getenv("METRICS_BUCKET")
+
 API_URL =  os.getenv("API_URL")
 ATHENA_TABLE = os.getenv("ATHENA_TABLE")
 ATHENA_DB = os.getenv("ATHENA_DB")
 
-API_USER = os.getenv("API_USER")
-API_PASSWORD = os.getenv("API_PASSWORD")
+
 def lambda_handler(event, context):
-    posts_metrics = {}
+    secrets = get_secret()
+    
+    API_USER = secrets["API_USER"]
+    API_PASSWORD = secrets["API_PASSWORD"]
     user_data = json.loads(event["Records"][0]["body"])
     username = user_data["username"]
     platform = user_data["platform"]
@@ -34,8 +59,8 @@ def lambda_handler(event, context):
     report_metrics = {}
     try:
         print("Retrieving data from athena")
-        athena_results_path = f'metrics_query_results'
-        athena_results_output = f"s3://{ATHENA_RESULTS_BUCKET}/{athena_results_path}"
+        athena_results_path = f'query_results'
+        athena_results_output = f"s3://{METRICS_BUCKET}/{athena_results_path}"
         post_metrics_data = {}
         
         query_exec_id = athena.start_query_execution(
@@ -53,13 +78,13 @@ def lambda_handler(event, context):
                 print(status)
                 sleep(5)
                 print(f"s3 path {athena_results_path}/{query_exec_id["QueryExecutionId"]}.csv")
-                post_metrics_data = pd.read_csv(s3.get_object(Bucket=ATHENA_RESULTS_BUCKET, Key=f"{athena_results_path}/{query_exec_id["QueryExecutionId"]}.csv")['Body']).to_dict(orient="Records")
+                post_metrics_data = pd.read_csv(s3.get_object(Bucket=METRICS_BUCKET, Key=f"{athena_results_path}/{query_exec_id["QueryExecutionId"]}.csv")['Body']).to_dict(orient="Records")
                 wait_job = False
             if status['QueryExecution']["Status"]["State"] == "FAILED":
                 raise Exception("Error in query execution")
         print("Calculating metrics",f"reportmetrics/platform={platform}/username={username}/data.json")
         post_metrics = aggregate_data(post_metrics_data)
-        report_metrics_data = json.loads(s3.get_object(Bucket=USER_METRICS_BUCKET, Key=f"reportmetrics/platform={platform}/username={username}/data.json")['Body'].read().decode('utf-8'))
+        report_metrics_data = json.loads(s3.get_object(Bucket=METRICS_BUCKET, Key=f"reportmetrics/platform={platform}/username={username}/data.json")['Body'].read().decode('utf-8'))
         print("Creating metrics report")
         for metric_name in metrics_list["raw_metrics"]:
             report_metrics[metric_name] = report_metrics_data[metric_name] if report_metrics_data[metric_name] is None else 0

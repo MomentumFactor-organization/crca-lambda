@@ -261,9 +261,7 @@ resource "aws_lambda_function" "process_report_batch" {
   # Revisar estas variables
   environment {
     variables = {
-      API_PASSWORD          = "zIiwiZXhwIjoxNzEyOTU"
       API_URL               = "https://apidev.creatorcatalyst.ai"
-      API_USER              = "autoupdater@momofactor.com"
       ATHENA_DB             = "${var.environment}-creatorcatalyst-athena-database"
       ATHENA_RESULTS_BUCKET = aws_s3_bucket.creator_catalyst_analytics.bucket
       SCRAPER_SQS           = aws_sqs_queue.creator_catalyst_queue_cc.arn
