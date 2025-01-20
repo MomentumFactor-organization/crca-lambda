@@ -6,8 +6,8 @@ from io import BytesIO
 
 SCRAPER_SQS = os.getenv("SCRAPER_SQS")
 API_URL = os.getenv("API_URL")
-API_USER = os.getenv("API_USER")
-API_PASSWORD = os.getenv("API_PASSWORD")
+# API_USER = os.getenv("API_USER")
+# API_PASSWORD = os.getenv("API_PASSWORD")
 
 ATHENA_RESULTS_BUCKET = os.getenv("ATHENA_RESULTS_BUCKET")
 ATHENA_DB = os.getenv("ATHENA_DB")
@@ -18,6 +18,7 @@ USER_METRICS_BUCKET = os.getenv("USER_METRICS_BUCKET")
 platforms = {"tiktok":1,"instagram":2,"youtube":3,"facebook":4,"x":5}
 
 def lambda_handler(event, context):
+    
     sqs = boto3.client("sqs")
     athena = boto3.client("athena",region_name="us-east-1")
     

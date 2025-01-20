@@ -23,7 +23,7 @@ def process_post(post_data,post_id,bucket):
     
     json_payload = json.dumps(post_data)
     
-    post_suburi = f"platform={post_data['platform_id']}/username={post_data['creator_user']}/post_id={post_id}"
+    post_suburi = f"posts/platform={post_data['platform_id']}/username={post_data['creator_user']}/post_id={post_id}"
     snapshot = post_data['snapshot']
     post_s3_location = f"s3://{bucket}/{post_suburi}/last.json"
     try:
@@ -46,7 +46,7 @@ def process_metrics(metrics_data,platform_id,creator_username,post_id,snapshot,b
 
     json_payload = json.dumps(metrics_data)
 
-    metrics_suburi = f"platform={platform_id}/username={creator_username}/post_id={post_id}"
+    metrics_suburi = f"metrics/platform={platform_id}/username={creator_username}/post_id={post_id}"
     snapshot = snapshot
     metrics_s3_location = f"s3://{bucket}/{metrics_suburi}/last.json"
     
