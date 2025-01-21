@@ -38,7 +38,7 @@ jobs:
     - name: Determine environment and region
       id: setup-env
       run: |
-        # Determinar el ambiente basado en la rama
+        # Determine the environment based on the branch
         if [[ -n "${{ github.event.inputs.environment }}" ]]; then
           echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
         elif [[ "${GITHUB_REF_NAME}" == "production" ]]; then
@@ -49,7 +49,7 @@ jobs:
           echo "ENVIRONMENT=develop" >> $GITHUB_ENV
         fi
       
-        # Determinar la región de AWS
+        # Determine the AWS Region
         if [[ -n "${{ github.event.inputs.aws_region }}" ]]; then
           echo "AWS_REGION=${{ github.event.inputs.aws_region }}" >> $GITHUB_ENV
         else
