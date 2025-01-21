@@ -71,8 +71,6 @@ resource "aws_lambda_function" "metrics" {
   ]
 }
 
-#
-
 resource "aws_lambda_function" "post_batch_processing" {
   filename      = "compressed/${var.environment}-posts-batch-processing.zip"
   function_name = "${var.environment}-post-batch-processing"
@@ -96,8 +94,6 @@ resource "aws_lambda_function" "post_batch_processing" {
   ]
 }
 
-#
-
 resource "aws_lambda_function" "posts_score_metrics" {
   filename      = "compressed/${var.environment}-posts-score-metrics.zip"
   function_name = "${var.environment}-posts-score-metrics"
@@ -113,8 +109,6 @@ resource "aws_lambda_function" "posts_score_metrics" {
     }
   }
 }
-
-#
 
 resource "aws_lambda_function" "posts_processing" {
   filename      = "compressed/${var.environment}-posts-processing.zip"
@@ -138,9 +132,6 @@ resource "aws_lambda_function" "posts_processing" {
     aws_lambda_layer_version.requests_layer.arn
   ]
 }
-
-#
-
 
 resource "aws_lambda_function" "process_report_batch" {
   filename      = "compressed/${var.environment}-process-report-batch.zip"
@@ -211,4 +202,21 @@ resource "aws_lambda_function" "unitary_webhook" {
     }
   }
 }
-    
+
+resource "aws_lambda_function" "process_creator_report" {
+  filename      = "compressed/${var.environment}-process-creator-report.zip"
+  function_name = "${var.environment}-process-creator-report"
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.10"
+  role          = data.aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      REPORT_BATCH_SQS = aws_sqs_queue.report_batches.arn
+    }
+  }
+
+  layers = [
+    aws_lambda_layer_version.requests_layer.arn
+  ]
+}
