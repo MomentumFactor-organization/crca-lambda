@@ -72,6 +72,47 @@ resource "aws_api_gateway_integration" "initiate_post_integration" {
   uri                     = aws_lambda_function.process_creator_report.invoke_arn
 }
 
+resource "aws_api_gateway_integration" "status_options_integration" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id = aws_api_gateway_resource.status.id
+  http_method = aws_api_gateway_method.status_options.http_method
+  type        = "MOCK"
+
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+resource "aws_api_gateway_integration" "initiate_options_integration" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id = aws_api_gateway_resource.initiate.id
+  http_method = aws_api_gateway_method.initiate_options.http_method
+  type        = "MOCK"
+
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+resource "aws_api_gateway_method" "phyllo_profile_analytics_options" {
+  rest_api_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id   = aws_api_gateway_resource.phyllo_profile_analytics.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "phyllo_profile_analytics_options_integration" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id = aws_api_gateway_resource.phyllo_profile_analytics.id
+  http_method = aws_api_gateway_method.phyllo_profile_analytics_options.http_method
+  type        = "MOCK"
+
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+
 resource "aws_lambda_permission" "api_gateway_invoke" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
@@ -86,6 +127,8 @@ resource "aws_api_gateway_deployment" "deployment" {
 
   depends_on = [
     aws_api_gateway_integration.status_post_integration,
-    aws_api_gateway_integration.initiate_post_integration
+    aws_api_gateway_integration.initiate_post_integration,
+    aws_api_gateway_integration.status_options_integration,
+    aws_api_gateway_integration.initiate_options_integration
   ]
 }

@@ -18,6 +18,7 @@ resource "aws_cloudwatch_dashboard" "creator_catalyst_dashboard" {
           "stacked" : false,
           "title" : "Posts Processing ",
           "period" : 60,
+          "region" : "us-west-1",
           "stat" : "Average"
         }
       },
@@ -37,6 +38,7 @@ resource "aws_cloudwatch_dashboard" "creator_catalyst_dashboard" {
           "stacked" : false,
           "title" : "Unitary Webhook Response",
           "period" : 60,
+          "region" : "us-west-1",
           "stat" : "Average"
         }
       },
@@ -56,6 +58,7 @@ resource "aws_cloudwatch_dashboard" "creator_catalyst_dashboard" {
           "stacked" : false,
           "title" : "Media Processing",
           "period" : 60,
+          "region" : "us-west-1",
           "stat" : "Average"
         }
       },
@@ -75,6 +78,7 @@ resource "aws_cloudwatch_dashboard" "creator_catalyst_dashboard" {
           "stacked" : false,
           "title" : "Report Processing ",
           "period" : 60,
+          "region" : "us-west-1",
           "stat" : "Average"
         }
       },
@@ -94,6 +98,7 @@ resource "aws_cloudwatch_dashboard" "creator_catalyst_dashboard" {
           "stacked" : true,
           "title" : "Metrics Report",
           "period" : 60,
+          "region" : "us-west-1",
           "stat" : "Average"
         }
       },
@@ -113,6 +118,7 @@ resource "aws_cloudwatch_dashboard" "creator_catalyst_dashboard" {
           "stacked" : false,
           "title" : "Report Processing - Batch",
           "period" : 60,
+          "region" : "us-west-1",
           "stat" : "Average"
         }
       },
@@ -132,6 +138,7 @@ resource "aws_cloudwatch_dashboard" "creator_catalyst_dashboard" {
           "stacked" : false,
           "title" : "Posts Processing - Batch",
           "period" : 60,
+          "region" : "us-west-1",
           "stat" : "Average"
         }
       },
