@@ -17,3 +17,7 @@ resource "aws_sqs_queue" "metrics_reporting" {
 resource "aws_sqs_queue" "report_batches" {
   name = "${var.environment}-report-batches"
 }
+
+resource "aws_sqs_queue" "send_email_queue" {
+  name = "${var.environment}-send-email-queue-cc"
+}
