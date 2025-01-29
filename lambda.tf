@@ -220,3 +220,24 @@ resource "aws_lambda_function" "process_creator_report" {
     aws_lambda_layer_version.requests_layer.arn
   ]
 }
+# Function for sending emails
+
+resource "aws_lambda_function" "send_email" {
+  filename      = "compressed/${var.environment}-send_email.zip"
+  function_name = "${var.environment}-send_email"
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.10"
+  role          = data.aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      SECRET_NAME     = "${var.environment}/backend/docker"
+      DOMAIN_NAME     = "cc.creatorcatalyst.ai"
+    }
+  }
+
+  layers = [
+    aws_lambda_layer_version.requests_layer.arn,
+    aws_lambda_layer_version.boto3_layer.arn
+  ]
+}
