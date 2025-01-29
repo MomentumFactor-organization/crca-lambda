@@ -1,4 +1,4 @@
-name: Deploy postsscoremetrics
+name: Deploy processcreatorreport
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - staging
       - production
     paths:
-      - '../../lambdas/posts-score-metrics/**'
+      - '../../lambdas/process-creator-report/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -63,5 +63,7 @@ jobs:
           AWS_REGION: ${{ env.AWS_REGION }}
         run: |
           echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
-          rm -f ../../compressed/${ENVIRONMENT}-posts-score-metrics.zip
-          zip -r9 ../../compressed/${ENVIRONMENT}-posts-score-metrics.zip ../../lambdas/posts-score-metrics
+          rm -f ../../compressed/${ENVIRONMENT}-process-creator-report.zip
+          cd ../../lambdas/process-creator-report
+          zip -r9 ../../compressed/${ENVIRONMENT}-process-creator-report.zip ../../lambdas/process-creator-report
+          aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-process-creator-report --zip-file fileb://../../compressed/${ENVIRONMENT}-process-creator-report.zip
