@@ -3,14 +3,13 @@ import os
 import boto3
 import io 
 import requests as rq
-import botocore
 
 
 DOMAIN_NAME = os.getenv("DOMAIN_NAME")
 region_name = "us-west-1"
 
-def get_secret(secret_name):
-    secret_name = os.environ("SECRET_NAME")
+def get_secret():
+    secret_name = os.getenv("SECRET_NAME")
     
     client = boto3.client('secretsmanager', region_name=region_name)
 
@@ -27,28 +26,32 @@ def get_secret(secret_name):
 
 
 def lambda_handler(event, context):
-    template = event.get("template_name")
-    recipient = event["recipient"]
-    subject = event["subject"]
-    body = event["body"]
-
-    MAILGUN_API_KEY = get_secret("MAILGUN_API_KEY") 
-    MAILGUN_SIGNING_KEY = get_secret("MAILGUN_SIGNING_URL")
+    records = event["Records"]
     
-    DOMAIN_NAME = os.getenv("DOMAIN_NAME")
+    for record in records:
+        payload = record["body"]
+        template = payload.get("template_name")
+        recipient = payload["recipient"]
+        subject = payload["subject"]
+        body = payload["body"]
+        
+        secrets = get_secret()
+        MAILGUN_API_KEY = secrets["MAILGUN_API_KEY"] 
+        MAILGUN_SIGNING_KEY = secrets["MAILGUN_SIGNING_URL"]
+        
+        DOMAIN_NAME = os.getenv("DOMAIN_NAME")
 
-    response = rq.post(
-        f"https://api.mailgun.net/v3/{DOMAIN_NAME}/messages",
-        auth=("api", MAILGUN_API_KEY),
-        data={
-            "from": f"Mailgun Sandbox <postmaster@{DOMAIN_NAME}>",
-            "to": recipient,
-            "subject": subject,
-            "text": body
-        }
-    )
-    
+        response = rq.post(
+            f"https://api.mailgun.net/v3/{DOMAIN_NAME}/messages",
+            auth=("api", MAILGUN_API_KEY),
+            data={
+                "from": f"Creator Catalyst Notification <noreply@{DOMAIN_NAME}>",
+                "to": recipient,
+                "subject": subject,
+                "text": body
+            }
+        )
     return {
         'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+        'body': json.dumps(f'Email sent to {recipient}')
     }

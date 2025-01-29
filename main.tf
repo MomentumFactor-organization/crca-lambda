@@ -330,3 +330,34 @@ resource "aws_lambda_function" "unitary_webhook" {
     }
   }
 }
+
+resource "aws_lambda_function" "send_email" {
+  filename      = "compressed/${var.environment}-send_email.zip"
+  function_name = "${var.environment}-send_email"
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.10"
+  role          = data.aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      SECRET_NAME     = "${var.environment}/backend/docker"
+      DOMAIN_NAME     = "cc.creatorcatalyst.ai"
+    }
+  }
+
+  layers = [
+    aws_lambda_layer_version.requests_layer.arn,
+    aws_lambda_layer_version.boto3_layer.arn
+  ]
+}
+
+resource "aws_sqs_queue" "send_email_queue" {
+  name = "${var.environment}-send-email-queue-cc"
+}
+
+resource "aws_lambda_event_source_mapping" "report_batches_sqs_trigger" {
+  event_source_arn = aws_sqs_queue.send_email_queue.arn
+  function_name    = aws_lambda_function.send_email.function_name
+  batch_size       = 1
+  enabled          = true
+}
