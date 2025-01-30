@@ -242,7 +242,7 @@ resource "aws_lambda_function" "send_email" {
   ]
 }
 
-resource "aws_lambda_event_source_mapping" "report_batches_sqs_trigger" {
+resource "aws_lambda_event_source_mapping" "send_email_sqs_trigger" {
   event_source_arn = aws_sqs_queue.send_email_queue.arn
   function_name    = aws_lambda_function.send_email.function_name
   batch_size       = 1
