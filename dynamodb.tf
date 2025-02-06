@@ -21,12 +21,12 @@ resource "aws_dynamodb_table" "creators_results" {
   }
 
   global_secondary_index {
-    name               = "MatchIndex"
-    hash_key           = "result_uuid"
-    range_key          = "match"
-    projection_type    = "ALL"
-    read_capacity      = 0
-    write_capacity     = 0
+    name            = "MatchIndex"
+    hash_key        = "result_uuid"
+    range_key       = "match"
+    projection_type = "ALL"
+    read_capacity   = 0
+    write_capacity  = 0
   }
 
   table_class = "STANDARD"
@@ -107,11 +107,11 @@ resource "aws_dynamodb_table" "phrases_store" {
   }
 
   global_secondary_index {
-    name               = "date_timestamp-index"
-    hash_key           = "date_timestamp"
-    projection_type    = "ALL"
-    read_capacity      = 0
-    write_capacity     = 0
+    name            = "date_timestamp-index"
+    hash_key        = "date_timestamp"
+    projection_type = "ALL"
+    read_capacity   = 0
+    write_capacity  = 0
   }
 
   table_class = "STANDARD"
