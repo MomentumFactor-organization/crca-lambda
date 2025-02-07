@@ -7,6 +7,7 @@ resource "aws_api_gateway_rest_api" "creator_catalyst_integrations" {
   api_key_source               = "HEADER"
   disable_execute_api_endpoint = false
 }
+
 resource "aws_api_gateway_resource" "phyllo_profile_analytics" {
   rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
   parent_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.root_resource_id
@@ -57,6 +58,16 @@ resource "aws_api_gateway_integration" "get_phyllo_profile_analytics_status" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = "arn:aws:lambda:us-west-1:396913719177:function:develop-phyllo-profile-analytics"
+}
+
+resource "aws_api_gateway_deployment" "creator_catalyst_integrations_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  stage_name  = "dev"
+
+  depends_on = [
+    aws_api_gateway_method.post_phyllo_profile_analytics_initiate,
+    aws_api_gateway_method.get_phyllo_profile_analytics_status
+  ]
 }
 
 resource "aws_api_gateway_api_key" "develop_integration_apigw" {
