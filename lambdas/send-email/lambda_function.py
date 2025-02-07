@@ -29,7 +29,7 @@ def lambda_handler(event, context):
     records = event["Records"]
     
     for record in records:
-        payload = record["body"]
+        payload = json.loads(record["body"])
         template = payload.get("template_name")
         recipient = payload["recipient"]
         subject = payload["subject"]
