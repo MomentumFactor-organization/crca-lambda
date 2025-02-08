@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.10.5",
-  "serial": 324,
+  "serial": 281,
   "lineage": "3c8c7525-1e60-8759-27c1-3ceba376fa87",
   "outputs": {
     "boto3_layer_arn": {
@@ -69,7 +69,7 @@
             "permissions_boundary": "",
             "role_last_used": [
               {
-                "last_used_date": "2025-02-08T03:14:02Z",
+                "last_used_date": "2025-02-08T03:00:53Z",
                 "region": "us-west-1"
               }
             ],
@@ -147,6 +147,38 @@
     },
     {
       "mode": "managed",
+      "type": "aws_api_gateway_api_key",
+      "name": "develop_integration_apigw",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:apigateway:us-west-1::/apikeys/4799552y3a",
+            "created_date": "2025-02-07T19:54:32Z",
+            "description": "API Key for Phyllo Profile Analytics",
+            "enabled": true,
+            "id": "4799552y3a",
+            "last_updated_date": "2025-02-07T19:54:32Z",
+            "name": "develop-integration-apigw",
+            "tags": {},
+            "tags_all": {},
+            "value": "WwdMTYnfVzaeXC4kjZli94IcRW7lMpeoyLTRk9Hi"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "value"
+              }
+            ]
+          ],
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
       "type": "aws_api_gateway_deployment",
       "name": "creator_catalyst_integrations_deployment",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
@@ -154,12 +186,12 @@
         {
           "schema_version": 0,
           "attributes": {
-            "created_date": "2025-02-08T03:13:17Z",
+            "created_date": "2025-02-07T21:23:51Z",
             "description": "",
-            "execution_arn": "arn:aws:execute-api:us-west-1:396913719177:az9y9aqo7h/develop",
-            "id": "jsk8ud",
-            "invoke_url": "https://az9y9aqo7h.execute-api.us-west-1.amazonaws.com/develop",
-            "rest_api_id": "az9y9aqo7h",
+            "execution_arn": "arn:aws:execute-api:us-west-1:396913719177:edjgxdqo89/develop",
+            "id": "kpwxd9",
+            "invoke_url": "https://edjgxdqo89.execute-api.us-west-1.amazonaws.com/develop",
+            "rest_api_id": "edjgxdqo89",
             "stage_description": null,
             "stage_name": "develop",
             "triggers": null,
@@ -168,16 +200,15 @@
           "sensitive_attributes": [],
           "private": "bnVsbA==",
           "dependencies": [
-            "aws_api_gateway_integration.options_phyllo_profile_analytics",
-            "aws_api_gateway_integration.options_phyllo_profile_analytics_initiate",
-            "aws_api_gateway_integration.options_phyllo_profile_analytics_status",
-            "aws_api_gateway_method.options_phyllo_profile_analytics",
-            "aws_api_gateway_method.options_phyllo_profile_analytics_initiate",
-            "aws_api_gateway_method.options_phyllo_profile_analytics_status",
+            "aws_api_gateway_integration.get_phyllo_profile_analytics_status",
+            "aws_api_gateway_integration.post_phyllo_profile_analytics_initiate",
+            "aws_api_gateway_method.get_phyllo_profile_analytics_status",
+            "aws_api_gateway_method.post_phyllo_profile_analytics_initiate",
             "aws_api_gateway_resource.phyllo_profile_analytics",
             "aws_api_gateway_resource.phyllo_profile_analytics_initiate",
             "aws_api_gateway_resource.phyllo_profile_analytics_status",
-            "aws_api_gateway_rest_api.creator_catalyst_integrations"
+            "aws_api_gateway_rest_api.creator_catalyst_integrations",
+            "data.aws_lambda_function.phyllo_profile_analytics"
           ]
         }
       ]
@@ -185,37 +216,39 @@
     {
       "mode": "managed",
       "type": "aws_api_gateway_integration",
-      "name": "options_phyllo_profile_analytics",
+      "name": "get_phyllo_profile_analytics_status",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
       "instances": [
         {
           "schema_version": 0,
           "attributes": {
             "cache_key_parameters": [],
-            "cache_namespace": "s1k2q9",
+            "cache_namespace": "dhet0w",
             "connection_id": "",
             "connection_type": "INTERNET",
             "content_handling": "",
             "credentials": "",
-            "http_method": "OPTIONS",
-            "id": "agi-az9y9aqo7h-s1k2q9-OPTIONS",
-            "integration_http_method": "",
+            "http_method": "GET",
+            "id": "agi-edjgxdqo89-dhet0w-GET",
+            "integration_http_method": "POST",
             "passthrough_behavior": "WHEN_NO_MATCH",
             "request_parameters": {},
             "request_templates": {},
-            "resource_id": "s1k2q9",
-            "rest_api_id": "az9y9aqo7h",
+            "resource_id": "dhet0w",
+            "rest_api_id": "edjgxdqo89",
             "timeout_milliseconds": 29000,
             "tls_config": [],
-            "type": "MOCK",
-            "uri": ""
+            "type": "AWS_PROXY",
+            "uri": "arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-1:396913719177:function:develop-phyllo-profile-analytics/invocations"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
           "dependencies": [
-            "aws_api_gateway_method.options_phyllo_profile_analytics",
+            "aws_api_gateway_method.get_phyllo_profile_analytics_status",
             "aws_api_gateway_resource.phyllo_profile_analytics",
-            "aws_api_gateway_rest_api.creator_catalyst_integrations"
+            "aws_api_gateway_resource.phyllo_profile_analytics_status",
+            "aws_api_gateway_rest_api.creator_catalyst_integrations",
+            "data.aws_lambda_function.phyllo_profile_analytics"
           ]
         }
       ]
@@ -223,74 +256,68 @@
     {
       "mode": "managed",
       "type": "aws_api_gateway_integration",
-      "name": "options_phyllo_profile_analytics_initiate",
+      "name": "post_phyllo_profile_analytics_initiate",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
       "instances": [
         {
           "schema_version": 0,
           "attributes": {
             "cache_key_parameters": [],
-            "cache_namespace": "99lfd4",
+            "cache_namespace": "1lwx1b",
             "connection_id": "",
             "connection_type": "INTERNET",
             "content_handling": "",
             "credentials": "",
-            "http_method": "OPTIONS",
-            "id": "agi-az9y9aqo7h-99lfd4-OPTIONS",
-            "integration_http_method": "",
+            "http_method": "POST",
+            "id": "agi-edjgxdqo89-1lwx1b-POST",
+            "integration_http_method": "POST",
             "passthrough_behavior": "WHEN_NO_MATCH",
             "request_parameters": {},
             "request_templates": {},
-            "resource_id": "99lfd4",
-            "rest_api_id": "az9y9aqo7h",
+            "resource_id": "1lwx1b",
+            "rest_api_id": "edjgxdqo89",
             "timeout_milliseconds": 29000,
             "tls_config": [],
-            "type": "MOCK",
-            "uri": ""
+            "type": "AWS_PROXY",
+            "uri": "arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-1:396913719177:function:develop-phyllo-profile-analytics/invocations"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
           "dependencies": [
-            "aws_api_gateway_method.options_phyllo_profile_analytics_initiate",
+            "aws_api_gateway_method.post_phyllo_profile_analytics_initiate",
             "aws_api_gateway_resource.phyllo_profile_analytics",
             "aws_api_gateway_resource.phyllo_profile_analytics_initiate",
-            "aws_api_gateway_rest_api.creator_catalyst_integrations"
+            "aws_api_gateway_rest_api.creator_catalyst_integrations",
+            "data.aws_lambda_function.phyllo_profile_analytics"
           ]
         }
       ]
     },
     {
       "mode": "managed",
-      "type": "aws_api_gateway_integration",
-      "name": "options_phyllo_profile_analytics_status",
+      "type": "aws_api_gateway_method",
+      "name": "get_phyllo_profile_analytics_status",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
       "instances": [
         {
           "schema_version": 0,
           "attributes": {
-            "cache_key_parameters": [],
-            "cache_namespace": "ccvmhg",
-            "connection_id": "",
-            "connection_type": "INTERNET",
-            "content_handling": "",
-            "credentials": "",
-            "http_method": "OPTIONS",
-            "id": "agi-az9y9aqo7h-ccvmhg-OPTIONS",
-            "integration_http_method": "",
-            "passthrough_behavior": "WHEN_NO_MATCH",
+            "api_key_required": true,
+            "authorization": "NONE",
+            "authorization_scopes": [],
+            "authorizer_id": "",
+            "http_method": "GET",
+            "id": "agm-edjgxdqo89-dhet0w-GET",
+            "operation_name": "",
+            "request_models": {},
             "request_parameters": {},
-            "request_templates": {},
-            "resource_id": "ccvmhg",
-            "rest_api_id": "az9y9aqo7h",
-            "timeout_milliseconds": 29000,
-            "tls_config": [],
-            "type": "MOCK",
-            "uri": ""
+            "request_validator_id": "",
+            "resource_id": "dhet0w",
+            "rest_api_id": "edjgxdqo89"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
           "dependencies": [
-            "aws_api_gateway_method.options_phyllo_profile_analytics_status",
             "aws_api_gateway_resource.phyllo_profile_analytics",
             "aws_api_gateway_resource.phyllo_profile_analytics_status",
             "aws_api_gateway_rest_api.creator_catalyst_integrations"
@@ -301,93 +328,30 @@
     {
       "mode": "managed",
       "type": "aws_api_gateway_method",
-      "name": "options_phyllo_profile_analytics",
+      "name": "post_phyllo_profile_analytics_initiate",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
       "instances": [
         {
           "schema_version": 0,
           "attributes": {
-            "api_key_required": false,
+            "api_key_required": true,
             "authorization": "NONE",
             "authorization_scopes": [],
             "authorizer_id": "",
-            "http_method": "OPTIONS",
-            "id": "agm-az9y9aqo7h-s1k2q9-OPTIONS",
+            "http_method": "POST",
+            "id": "agm-edjgxdqo89-1lwx1b-POST",
             "operation_name": "",
             "request_models": {},
             "request_parameters": {},
             "request_validator_id": "",
-            "resource_id": "s1k2q9",
-            "rest_api_id": "az9y9aqo7h"
-          },
-          "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_api_gateway_resource.phyllo_profile_analytics",
-            "aws_api_gateway_rest_api.creator_catalyst_integrations"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_api_gateway_method",
-      "name": "options_phyllo_profile_analytics_initiate",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "api_key_required": false,
-            "authorization": "NONE",
-            "authorization_scopes": [],
-            "authorizer_id": "",
-            "http_method": "OPTIONS",
-            "id": "agm-az9y9aqo7h-99lfd4-OPTIONS",
-            "operation_name": "",
-            "request_models": {},
-            "request_parameters": {},
-            "request_validator_id": "",
-            "resource_id": "99lfd4",
-            "rest_api_id": "az9y9aqo7h"
+            "resource_id": "1lwx1b",
+            "rest_api_id": "edjgxdqo89"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
           "dependencies": [
             "aws_api_gateway_resource.phyllo_profile_analytics",
             "aws_api_gateway_resource.phyllo_profile_analytics_initiate",
-            "aws_api_gateway_rest_api.creator_catalyst_integrations"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_api_gateway_method",
-      "name": "options_phyllo_profile_analytics_status",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "api_key_required": false,
-            "authorization": "NONE",
-            "authorization_scopes": [],
-            "authorizer_id": "",
-            "http_method": "OPTIONS",
-            "id": "agm-az9y9aqo7h-ccvmhg-OPTIONS",
-            "operation_name": "",
-            "request_models": {},
-            "request_parameters": {},
-            "request_validator_id": "",
-            "resource_id": "ccvmhg",
-            "rest_api_id": "az9y9aqo7h"
-          },
-          "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_api_gateway_resource.phyllo_profile_analytics",
-            "aws_api_gateway_resource.phyllo_profile_analytics_status",
             "aws_api_gateway_rest_api.creator_catalyst_integrations"
           ]
         }
@@ -402,11 +366,11 @@
         {
           "schema_version": 0,
           "attributes": {
-            "id": "s1k2q9",
-            "parent_id": "knfejli719",
+            "id": "uzgmf0",
+            "parent_id": "448yuu6mj5",
             "path": "/phyllo-profile-analytics",
             "path_part": "phyllo-profile-analytics",
-            "rest_api_id": "az9y9aqo7h"
+            "rest_api_id": "edjgxdqo89"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
@@ -425,11 +389,11 @@
         {
           "schema_version": 0,
           "attributes": {
-            "id": "99lfd4",
-            "parent_id": "s1k2q9",
+            "id": "1lwx1b",
+            "parent_id": "uzgmf0",
             "path": "/phyllo-profile-analytics/initiate",
             "path_part": "initiate",
-            "rest_api_id": "az9y9aqo7h"
+            "rest_api_id": "edjgxdqo89"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
@@ -449,11 +413,11 @@
         {
           "schema_version": 0,
           "attributes": {
-            "id": "ccvmhg",
-            "parent_id": "s1k2q9",
+            "id": "dhet0w",
+            "parent_id": "uzgmf0",
             "path": "/phyllo-profile-analytics/status",
             "path_part": "status",
-            "rest_api_id": "az9y9aqo7h"
+            "rest_api_id": "edjgxdqo89"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
@@ -474,10 +438,10 @@
           "schema_version": 0,
           "attributes": {
             "api_key_source": "HEADER",
-            "arn": "arn:aws:apigateway:us-west-1::/restapis/az9y9aqo7h",
+            "arn": "arn:aws:apigateway:us-west-1::/restapis/edjgxdqo89",
             "binary_media_types": [],
             "body": null,
-            "created_date": "2025-02-08T03:13:16Z",
+            "created_date": "2025-02-07T21:08:03Z",
             "description": "API Gateway for Creator Catalyst integrations",
             "disable_execute_api_endpoint": false,
             "endpoint_configuration": [
@@ -488,20 +452,98 @@
                 "vpc_endpoint_ids": []
               }
             ],
-            "execution_arn": "arn:aws:execute-api:us-west-1:396913719177:az9y9aqo7h",
+            "execution_arn": "arn:aws:execute-api:us-west-1:396913719177:edjgxdqo89",
             "fail_on_warnings": null,
-            "id": "az9y9aqo7h",
+            "id": "edjgxdqo89",
             "minimum_compression_size": -1,
             "name": "develop-creator-catalyst-integrations",
             "parameters": null,
             "policy": "",
             "put_rest_api_mode": null,
-            "root_resource_id": "knfejli719",
+            "root_resource_id": "448yuu6mj5",
             "tags": {},
             "tags_all": {}
           },
           "sensitive_attributes": [],
           "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_api_gateway_usage_plan",
+      "name": "develop_api_gateway_usage_plan",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "api_stages": [
+              {
+                "api_id": "edjgxdqo89",
+                "stage": "develop",
+                "throttle": []
+              }
+            ],
+            "arn": "arn:aws:apigateway:us-west-1::/usageplans/38n299",
+            "description": "Usage plan for Phyllo Profile Analytics API Gateway",
+            "id": "38n299",
+            "name": "develop-api-gateway-usage-plan",
+            "product_code": "",
+            "quota_settings": [],
+            "tags": {},
+            "tags_all": {},
+            "throttle_settings": []
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_api_gateway_deployment.creator_catalyst_integrations_deployment",
+            "aws_api_gateway_integration.get_phyllo_profile_analytics_status",
+            "aws_api_gateway_integration.post_phyllo_profile_analytics_initiate",
+            "aws_api_gateway_method.get_phyllo_profile_analytics_status",
+            "aws_api_gateway_method.post_phyllo_profile_analytics_initiate",
+            "aws_api_gateway_resource.phyllo_profile_analytics",
+            "aws_api_gateway_resource.phyllo_profile_analytics_initiate",
+            "aws_api_gateway_resource.phyllo_profile_analytics_status",
+            "aws_api_gateway_rest_api.creator_catalyst_integrations",
+            "data.aws_lambda_function.phyllo_profile_analytics"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_api_gateway_usage_plan_key",
+      "name": "develop_api_gateway_usage_plan_key",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "4799552y3a",
+            "key_id": "4799552y3a",
+            "key_type": "API_KEY",
+            "name": "develop-integration-apigw",
+            "usage_plan_id": "38n299",
+            "value": "WwdMTYnfVzaeXC4kjZli94IcRW7lMpeoyLTRk9Hi"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_api_gateway_api_key.develop_integration_apigw",
+            "aws_api_gateway_deployment.creator_catalyst_integrations_deployment",
+            "aws_api_gateway_integration.get_phyllo_profile_analytics_status",
+            "aws_api_gateway_integration.post_phyllo_profile_analytics_initiate",
+            "aws_api_gateway_method.get_phyllo_profile_analytics_status",
+            "aws_api_gateway_method.post_phyllo_profile_analytics_initiate",
+            "aws_api_gateway_resource.phyllo_profile_analytics",
+            "aws_api_gateway_resource.phyllo_profile_analytics_initiate",
+            "aws_api_gateway_resource.phyllo_profile_analytics_status",
+            "aws_api_gateway_rest_api.creator_catalyst_integrations",
+            "aws_api_gateway_usage_plan.develop_api_gateway_usage_plan",
+            "data.aws_lambda_function.phyllo_profile_analytics"
+          ]
         }
       ]
     },
@@ -3332,7 +3374,7 @@
             "principal_org_id": null,
             "qualifier": "",
             "source_account": null,
-            "source_arn": "arn:aws:execute-api:us-west-1:396913719177:az9y9aqo7h/*/*",
+            "source_arn": "arn:aws:execute-api:us-west-1:396913719177:edjgxdqo89/*/*",
             "statement_id": "AllowAPIGatewayInvoke",
             "statement_id_prefix": ""
           },

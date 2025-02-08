@@ -26,20 +26,37 @@ resource "aws_api_gateway_resource" "phyllo_profile_analytics_status" {
   path_part   = "status"
 }
 
-resource "aws_api_gateway_method" "post_phyllo_profile_analytics_initiate" {
+resource "aws_api_gateway_method" "options_phyllo_profile_analytics" {
+  rest_api_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id   = aws_api_gateway_resource.phyllo_profile_analytics.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "options_phyllo_profile_analytics_initiate" {
   rest_api_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.id
   resource_id   = aws_api_gateway_resource.phyllo_profile_analytics_initiate.id
-  http_method   = "POST"
+  http_method   = "OPTIONS"
   authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "options_phyllo_profile_analytics_status" {
+  rest_api_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id   = aws_api_gateway_resource.phyllo_profile_analytics_status.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method" "post_phyllo_profile_analytics_initiate" {
+  rest_api_id      = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id      = aws_api_gateway_resource.phyllo_profile_analytics_initiate.id
+  http_method      = "POST"
+  authorization    = "NONE"
   api_key_required = true
 }
 
-resource "aws_api_gateway_method" "get_phyllo_profile_analytics_status" {
-  rest_api_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.id
-  resource_id   = aws_api_gateway_resource.phyllo_profile_analytics_status.id
-  http_method   = "GET"
-  authorization = "NONE"
-  api_key_required = true
+data "aws_lambda_function" "phyllo_profile_analytics" {
+  function_name = "${var.environment}-phyllo-profile-analytics"
 }
 
 resource "aws_api_gateway_integration" "post_phyllo_profile_analytics_initiate" {
@@ -48,54 +65,52 @@ resource "aws_api_gateway_integration" "post_phyllo_profile_analytics_initiate" 
   http_method             = aws_api_gateway_method.post_phyllo_profile_analytics_initiate.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = "arn:aws:lambda:us-west-1:396913719177:function:develop-phyllo-profile-analytics"
+  uri                     = "${data.aws_lambda_function.phyllo_profile_analytics.invoke_arn}/invocations"
 }
 
-resource "aws_api_gateway_integration" "get_phyllo_profile_analytics_status" {
-  rest_api_id             = aws_api_gateway_rest_api.creator_catalyst_integrations.id
-  resource_id             = aws_api_gateway_resource.phyllo_profile_analytics_status.id
-  http_method             = aws_api_gateway_method.get_phyllo_profile_analytics_status.http_method
-  integration_http_method = "POST"
-  type                    = "AWS_PROXY"
-  uri                     = "arn:aws:lambda:us-west-1:396913719177:function:develop-phyllo-profile-analytics"
+resource "aws_api_gateway_integration" "options_phyllo_profile_analytics" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id = aws_api_gateway_resource.phyllo_profile_analytics.id
+  http_method = "OPTIONS"
+  type        = "MOCK"
+
+  depends_on = [aws_api_gateway_method.options_phyllo_profile_analytics]
+}
+
+resource "aws_api_gateway_integration" "options_phyllo_profile_analytics_initiate" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id = aws_api_gateway_resource.phyllo_profile_analytics_initiate.id
+  http_method = "OPTIONS"
+  type        = "MOCK"
+
+  depends_on = [aws_api_gateway_method.options_phyllo_profile_analytics]
+}
+
+resource "aws_api_gateway_integration" "options_phyllo_profile_analytics_status" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id = aws_api_gateway_resource.phyllo_profile_analytics_status.id
+  http_method = "OPTIONS"
+  type        = "MOCK"
+
+  depends_on = [aws_api_gateway_method.options_phyllo_profile_analytics_status]
 }
 
 resource "aws_api_gateway_deployment" "creator_catalyst_integrations_deployment" {
   rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
-  stage_name  = "dev"
+  stage_name  = var.environment
 
   depends_on = [
-    aws_api_gateway_method.post_phyllo_profile_analytics_initiate,
-    aws_api_gateway_method.get_phyllo_profile_analytics_status
+    aws_api_gateway_integration.post_phyllo_profile_analytics_initiate,
+    aws_api_gateway_integration.options_phyllo_profile_analytics,
+    aws_api_gateway_integration.options_phyllo_profile_analytics_initiate,
+    aws_api_gateway_integration.options_phyllo_profile_analytics_status
   ]
-}
-
-resource "aws_api_gateway_api_key" "develop_integration_apigw" {
-  name        = "develop-integration-apigw"
-  description = "API Key for Phyllo Profile Analytics"
-  enabled     = true
-}
-
-resource "aws_api_gateway_usage_plan" "develop_api_gateway_usage_plan" {
-  name        = "develop-api-gateway-usage-plan"
-  description = "Usage plan for Phyllo Profile Analytics API Gateway"
-
-  api_stages {
-    api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
-    stage  = aws_api_gateway_deployment.creator_catalyst_integrations_deployment.stage_name
-  }
-}
-
-resource "aws_api_gateway_usage_plan_key" "develop_api_gateway_usage_plan_key" {
-  key_id        = aws_api_gateway_api_key.develop_integration_apigw.id
-  key_type      = "API_KEY"
-  usage_plan_id = aws_api_gateway_usage_plan.develop_api_gateway_usage_plan.id
 }
 
 resource "aws_lambda_permission" "apigw_lambda_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = "develop-phyllo-profile-analytics"
+  function_name = "${var.environment}-phyllo-profile-analytics"
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/*/*"
 }
