@@ -48,8 +48,8 @@ jobs:
           else
             echo "ENVIRONMENT=develop" >> $GITHUB_ENV
           fi
-        
-          # Determine the AWS Region
+          
+          # Determine the AWS region
           if [[ -n "${{ github.event.inputs.aws_region }}" ]]; then
             echo "AWS_REGION=${{ github.event.inputs.aws_region }}" >> $GITHUB_ENV
           else
