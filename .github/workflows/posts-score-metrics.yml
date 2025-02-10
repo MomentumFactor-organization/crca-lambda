@@ -7,7 +7,7 @@ on:
       - staging
       - production
     paths:
-      - '../../lambdas/posts-score-metrics/**'
+      - 'lambdas/posts-score-metrics/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -49,12 +49,12 @@ jobs:
             echo "ENVIRONMENT=develop" >> $GITHUB_ENV
           fi
         
+          # Determine the environment based on the branch
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
+        
           # Determine the AWS Region
-          if [[ -n "${{ github.event.inputs.aws_region }}" ]]; then
-            echo "AWS_REGION=${{ github.event.inputs.aws_region }}" >> $GITHUB_ENV
-          else
-            echo "AWS_REGION=us-west-1" >> $GITHUB_ENV
-          fi
+          echo "AWS_REGION=us-west-1" >> $GITHUB_ENV
 
       - name: Package and deploy
         env:
@@ -63,5 +63,5 @@ jobs:
           AWS_REGION: ${{ env.AWS_REGION }}
         run: |
           echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
-          rm -f ../../compressed/${ENVIRONMENT}-posts-score-metrics.zip
-          zip -r9 ../../compressed/${ENVIRONMENT}-posts-score-metrics.zip ../../lambdas/posts-score-metrics
+          rm -f compressed/${ENVIRONMENT}-posts-score-metrics.zip
+          zip -r9 compressed/${ENVIRONMENT}-posts-score-metrics.zip lambdas/posts-score-metrics

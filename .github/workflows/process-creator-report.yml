@@ -48,13 +48,13 @@ jobs:
           else
             echo "ENVIRONMENT=develop" >> $GITHUB_ENV
           fi
+      
+          # Determine the environment based on the branch
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
         
           # Determine the AWS Region
-          if [[ -n "${{ github.event.inputs.aws_region }}" ]]; then
-            echo "AWS_REGION=${{ github.event.inputs.aws_region }}" >> $GITHUB_ENV
-          else
-            echo "AWS_REGION=us-west-1" >> $GITHUB_ENV
-          fi
+          echo "AWS_REGION=us-west-1" >> $GITHUB_ENV
 
       - name: Package and deploy
         env:

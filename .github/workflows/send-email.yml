@@ -7,7 +7,7 @@ on:
       - staging
       - production
     paths:
-      - '../../lambdas/send-email/**'
+      - 'lambdas/send-email/**'
   workflow_dispatch:
     inputs:
       environment:
