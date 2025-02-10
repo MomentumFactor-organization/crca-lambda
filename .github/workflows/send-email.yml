@@ -67,4 +67,4 @@ jobs:
         ls
         rm -f compressed/${ENVIRONMENT}-send-email.zip
         zip -r9 compressed/${ENVIRONMENT}-send-email.zip lambdas/send-email
-        aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-send-email --zip-file fileb://compressed/${ENVIRONMENT}-send-email.zip .
+        aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-send-email --zip-file fileb://compressed/${ENVIRONMENT}-send-email.zip
