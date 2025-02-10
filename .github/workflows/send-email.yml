@@ -56,6 +56,13 @@ jobs:
           echo "AWS_REGION=us-west-1" >> $GITHUB_ENV
         fi
 
+    - name: Debug secrets
+      run: |
+        echo "AWS_ACCESS_KEY_ID is set to: ${{ secrets.AWS_ACCESS_KEY_ID }}"
+        echo "AWS_SECRET_ACCESS_KEY is set to: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        echo "AWS_REGION is set to: ${{ secrets.AWS_REGION }}"
+      
+
     - name: Package and deploy 
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
