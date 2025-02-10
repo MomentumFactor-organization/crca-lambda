@@ -6,7 +6,6 @@ resource "aws_lambda_layer_version" "boto3_layer" {
   source_code_hash    = filebase64sha256("layers/compressed/boto3-layer.zip")
   description         = "Layer for boto3 library"
 }
-
 # Layer for requests
 resource "aws_lambda_layer_version" "requests_layer" {
   filename            = "layers/compressed/requests-layer.zip"
@@ -14,7 +13,6 @@ resource "aws_lambda_layer_version" "requests_layer" {
   compatible_runtimes = ["python3.9", "python3.10"]
   source_code_hash    = filebase64sha256("layers/compressed/requests-layer.zip")
 }
-
 # Layer for psycopg2
 resource "aws_lambda_layer_version" "psycopg2_layer" {
   filename            = "layers/compressed/psycopg2-layer.zip"
@@ -22,8 +20,6 @@ resource "aws_lambda_layer_version" "psycopg2_layer" {
   compatible_runtimes = ["python3.9", "python3.10"]
   source_code_hash    = filebase64sha256("layers/compressed/psycopg2-layer.zip")
 }
-
-
 resource "aws_lambda_function" "media_analysis" {
   filename      = "compressed/${var.environment}-media-analysis.zip"
   function_name = "${var.environment}-media-analysis"
@@ -41,15 +37,12 @@ resource "aws_lambda_function" "media_analysis" {
     }
   }
 }
-
 resource "aws_lambda_event_source_mapping" "media_analysis_sqs_trigger" {
   event_source_arn = aws_sqs_queue.media_processing.arn
   function_name    = aws_lambda_function.media_analysis.function_name
   batch_size       = 1
   enabled          = true
 }
-
-
 resource "aws_lambda_function" "metrics" {
   filename      = "compressed/${var.environment}-metrics.zip"
   function_name = "${var.environment}-metrics"
@@ -70,7 +63,6 @@ resource "aws_lambda_function" "metrics" {
     aws_lambda_layer_version.psycopg2_layer.arn
   ]
 }
-
 resource "aws_lambda_function" "post_batch_processing" {
   filename      = "compressed/${var.environment}-posts-batch-processing.zip"
   function_name = "${var.environment}-post-batch-processing"
@@ -93,7 +85,6 @@ resource "aws_lambda_function" "post_batch_processing" {
     aws_lambda_layer_version.requests_layer.arn
   ]
 }
-
 resource "aws_lambda_function" "posts_score_metrics" {
   filename      = "compressed/${var.environment}-posts-score-metrics.zip"
   function_name = "${var.environment}-posts-score-metrics"
@@ -109,7 +100,6 @@ resource "aws_lambda_function" "posts_score_metrics" {
     }
   }
 }
-
 resource "aws_lambda_function" "posts_processing" {
   filename      = "compressed/${var.environment}-posts-processing.zip"
   function_name = "${var.environment}-posts-processing"
@@ -132,7 +122,6 @@ resource "aws_lambda_function" "posts_processing" {
     aws_lambda_layer_version.requests_layer.arn
   ]
 }
-
 resource "aws_lambda_function" "process_report_batch" {
   filename      = "compressed/${var.environment}-process-report-batch.zip"
   function_name = "${var.environment}-process-report-batch"
@@ -157,14 +146,12 @@ resource "aws_lambda_function" "process_report_batch" {
     aws_lambda_layer_version.requests_layer.arn
   ]
 }
-
 resource "aws_lambda_event_source_mapping" "report_batches_sqs_trigger" {
   event_source_arn = aws_sqs_queue.report_batches.arn
   function_name    = aws_lambda_function.process_report_batch.function_name
   batch_size       = 1
   enabled          = true
 }
-
 resource "aws_lambda_function" "score_metrics" {
   filename      = "compressed/${var.environment}-score-metrics.zip"
   function_name = "${var.environment}-score-metrics"
@@ -185,7 +172,6 @@ resource "aws_lambda_function" "score_metrics" {
     }
   }
 }
-
 resource "aws_lambda_function" "unitary_webhook" {
   filename      = "compressed/${var.environment}-unitary-webhook.zip"
   function_name = "${var.environment}-unitary-webhook"
@@ -202,7 +188,6 @@ resource "aws_lambda_function" "unitary_webhook" {
     }
   }
 }
-
 resource "aws_lambda_function" "process_creator_report" {
   filename      = "compressed/${var.environment}-process-creator-report.zip"
   function_name = "${var.environment}-process-creator-report"
@@ -221,7 +206,6 @@ resource "aws_lambda_function" "process_creator_report" {
   ]
 }
 # Function for sending emails
-
 resource "aws_lambda_function" "send_email" {
   filename      = "compressed/${var.environment}-send-email.zip"
   function_name = "${var.environment}-send-email"
@@ -241,7 +225,6 @@ resource "aws_lambda_function" "send_email" {
     aws_lambda_layer_version.boto3_layer.arn
   ]
 }
-
 resource "aws_lambda_event_source_mapping" "send_email_sqs_trigger" {
   event_source_arn = aws_sqs_queue.send_email_queue.arn
   function_name    = aws_lambda_function.send_email.function_name
