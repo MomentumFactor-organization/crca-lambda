@@ -63,6 +63,11 @@ jobs:
         AWS_REGION: ${{ env.AWS_REGION }}
       run: |
         echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
-        rm -f ../../compressed/${ENVIRONMENT}-send-email.zip
-        zip -r9 ../../compressed/${ENVIRONMENT}-send-email.zip ../../lambdas/send-email
-        aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-send-email --zip-file fileb://../../compressed/${ENVIRONMENT}-send-email.zip .
+        echo $AWS_ACCESS_KEY_ID
+        echo $AWS_REGION
+        rm -f compressed/${ENVIRONMENT}-send-email.zip
+        zip -r9 compressed/${ENVIRONMENT}-send-email.zip lambdas/send-email
+        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+        aws configure set region $AWS_REGION
+        aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-send-email --zip-file fileb://compressed/${ENVIRONMENT}-send-email.zip
