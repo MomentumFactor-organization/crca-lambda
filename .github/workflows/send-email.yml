@@ -63,6 +63,8 @@ jobs:
         AWS_REGION: ${{ env.AWS_REGION }}
       run: |
         echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
+        echo $AWS_ACCESS_KEY_ID
+        echo $AWS_REGION
         rm -f compressed/${ENVIRONMENT}-send-email.zip
         zip -r9 compressed/${ENVIRONMENT}-send-email.zip lambdas/send-email
         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
