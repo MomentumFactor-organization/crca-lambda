@@ -18,6 +18,7 @@ def extract_post(post,metrics_keys,metrics_bucket,posts_bucket):
     s3_metrics = process_metrics(metrics_data,platform_id,creator_username,post_id,snapshot,metrics_bucket)
     return post_id
     
+
 def process_post(post_data,post_id,bucket):
     s3 = boto3.client("s3")
     
