@@ -62,8 +62,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
           AWS_REGION: ${{ env.AWS_REGION }}
+          FUNCTION: 'metrics'
         run: |
           echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
-          rm -f compressed/${ENVIRONMENT}-metrics.zip
-          zip -r9 compressed/${ENVIRONMENT}-metrics.zip lambdas/metrics
-          aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-metrics --zip-file fileb://compressed/${ENVIRONMENT}-metrics.zip
+          rm -f compressed/${ENVIRONMENT}-${FUNCTION}.zip
+          cd lambdas/${FUNCTION} && zip -r9 ../../compressed/${ENVIRONMENT}-${FUNCTION}.zip . && cd ../..
+          aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-${FUNCTION} --zip-file fileb://compressed/${ENVIRONMENT}-${FUNCTION}.zip

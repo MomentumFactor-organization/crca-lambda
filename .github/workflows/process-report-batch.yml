@@ -61,9 +61,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ env.AWS_REGION }}
+          FUNCTION: 'process-report-batch'
         run: |
           echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
-          rm -f compressed/${ENVIRONMENT}-process-report-batch.zip
-          cd lambdas/process-report-batch
-          zip -r9 compressed/${ENVIRONMENT}-process-report-batch.zip lambdas/process-report-batch
-          aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-process-report-batch --zip-file fileb://compressed/${ENVIRONMENT}-process-report-batch.zip
+          rm -f compressed/${ENVIRONMENT}-${FUNCTION}.zip
+          cd lambdas/${FUNCTION} && zip -r9 ../../compressed/${ENVIRONMENT}-${FUNCTION}.zip . && cd ../..
+          aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-${FUNCTION} --zip-file fileb://compressed/${ENVIRONMENT}-${FUNCTION}.zip
