@@ -15,6 +15,7 @@ POSTS_TABLE = os.getenv("POSTS_TABLE")
 POSTS_DATA_BUCKET = os.getenv("POSTS_DATA_BUCKET")
 POSTS_METRICS_BUCKET = os.getenv("POSTS_METRICS_BUCKET")
 
+
 def lambda_handler(event, context):
 
     dynamodb = boto3.client("dynamodb")

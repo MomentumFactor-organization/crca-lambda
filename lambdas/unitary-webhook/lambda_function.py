@@ -8,6 +8,7 @@ POSTS_BUCKET = os.getenv("POSTS_BUCKET")
 TAGS_BUCKET = os.getenv("TAGS_BUCKET")
 POSTS_TABLE = os.getenv("POSTS_TABLE")
 
+
 def lambda_handler(event, context):
     dynamodb = boto3.client("dynamodb")
     

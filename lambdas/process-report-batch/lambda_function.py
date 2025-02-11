@@ -17,6 +17,7 @@ USER_METRICS_BUCKET = os.getenv("USER_METRICS_BUCKET")
 
 platforms = {"tiktok":1,"instagram":2,"youtube":3,"facebook":4,"x":5}
 
+
 def lambda_handler(event, context):
     sqs = boto3.client("sqs")
     athena = boto3.client("athena",region_name="us-east-1")

@@ -14,6 +14,7 @@ logger.setLevel(logging.INFO)
 
 region_name = "us-west-1"
 
+
 def get_secret():
     secret_name = os.environ("SECRET_NAME")
 

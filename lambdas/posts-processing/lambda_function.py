@@ -10,6 +10,7 @@ SCRAPER_RESULT_TABLE = os.getenv("SCRAPER_RESULT_TABLE")
 POST_BATCH_SQS = os.getenv("POST_BATCH_SQS")
 METRICS_REPORT_SQS = os.getenv("METRICS_REPORT_SQS")
 
+
 def lambda_handler(event, context):
     run_id = json.loads(event["Records"][0]["body"])
     dynamodb = boto3.client("dynamodb")

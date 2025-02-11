@@ -6,7 +6,7 @@ def aggregate_data(raw_metics):
     result_metrics = {}
     metrics_df.drop(columns=["post_id","platform","username"])
     result_metrics = metrics_df.groupby(["username","platform"]).sum().drop(columns=["post_id"]).to_dict(orient="records")[0]
-    # for col in metrics_df.columns:
+    # for col in metrics_df.columns:                        #Remove this lines?
     #     result_metrics[col] = metrics_df[col].sum()
     result_metrics["posts_count"] = metrics_df.shape[0]
     return result_metrics

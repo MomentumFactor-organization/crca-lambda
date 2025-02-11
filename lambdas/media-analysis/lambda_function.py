@@ -23,6 +23,7 @@ extensions = {"mp4":"video",
 POSTS_BUCKET = os.getenv("POSTS_BUCKET")
 POSTS_TABLE = os.getenv("POSTS_TABLE")
 
+
 def download_file(url):
     # local_filename = url.split('/')[-1]
     # NOTE the stream=True parameter below

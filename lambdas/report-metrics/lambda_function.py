@@ -15,6 +15,8 @@ ATHENA_DB = os.getenv("ATHENA_DB")
 
 API_USER = os.getenv("API_USER")
 API_PASSWORD = os.getenv("API_PASSWORD")
+
+
 def lambda_handler(event, context):
     posts_metrics = {}
     user_data = json.loads(event["Records"][0]["body"])
