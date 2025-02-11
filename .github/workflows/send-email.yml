@@ -64,5 +64,7 @@ jobs:
       run: |
         echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
         rm -f compressed/${ENVIRONMENT}-send-email.zip
+        cd lambdas
         zip -r9 compressed/${ENVIRONMENT}-send-email.zip lambdas/send-email
+        cd ..
         aws lambda update-function-code --region ${AWS_REGION} --function-name ${ENVIRONMENT}-send-email --zip-file fileb://compressed/${ENVIRONMENT}-send-email.zip
