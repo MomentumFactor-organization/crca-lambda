@@ -8,6 +8,7 @@ import requests as rq
 DOMAIN_NAME = os.getenv("DOMAIN_NAME")
 region_name = "us-west-1"
 
+
 def get_secret():
     secret_name = os.getenv("SECRET_NAME")
     
