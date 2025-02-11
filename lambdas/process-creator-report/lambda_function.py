@@ -4,6 +4,7 @@ import os
 
 REPORT_BATCH_SQS = os.getenv("REPORT_BATCH_SQS")
 
+
 def lambda_handler(event, context):
     sqs = boto3.client("sqs")
     report = json.loads(event["body"])
