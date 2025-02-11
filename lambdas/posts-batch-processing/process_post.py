@@ -42,6 +42,7 @@ def process_post(post_data,post_id,bucket):
         )
     return post_s3_location
 
+
 def process_metrics(metrics_data,platform_id,creator_username,post_id,snapshot,bucket):
     s3 = boto3.client("s3")
 
