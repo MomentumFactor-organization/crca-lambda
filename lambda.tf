@@ -20,6 +20,14 @@ resource "aws_lambda_layer_version" "psycopg2_layer" {
   compatible_runtimes = ["python3.9", "python3.10"]
   source_code_hash    = filebase64sha256("layers/compressed/psycopg2-layer.zip")
 }
+# Layer for httpx
+resource "aws_lambda_layer_version" "httpx_layer" {
+  filename            = "layers/compressed/httpx-layer.zip"
+  layer_name          = "${var.environment}-httpx-layer"
+  compatible_runtimes = ["python3.9", "python3.10"]
+  source_code_hash    = filebase64sha256("layers/compressed/httpx-layer.zip")
+  description         = "Layer for httpx library"
+}
 resource "aws_lambda_function" "media_analysis" {
   filename      = "compressed/${var.environment}-media-analysis.zip"
   function_name = "${var.environment}-media-analysis"
@@ -224,10 +232,40 @@ resource "aws_lambda_function" "send_email" {
     aws_lambda_layer_version.requests_layer.arn,
     aws_lambda_layer_version.boto3_layer.arn
   ]
+
+  lifecycle {
+    ignore_changes = [
+      reserved_concurrent_executions
+    ]
+  }
 }
 resource "aws_lambda_event_source_mapping" "send_email_sqs_trigger" {
   event_source_arn = aws_sqs_queue.send_email_queue.arn
   function_name    = aws_lambda_function.send_email.function_name
   batch_size       = 1
   enabled          = true
+}
+
+resource "aws_lambda_function" "phyllo_profile_analytics" {
+  filename      = "compressed/${var.environment}-phyllo-profile-analytics.zip"
+  function_name = "${var.environment}-phyllo-profile-analytics"
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.10"
+  role          = data.aws_iam_role.lambda_role.arn
+
+  memory_size = 256
+  timeout     = 60
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME   = "${var.environment}-insiq-creator-profile-analytics"
+      INSIGHTIQ_SECRET_NAME = "${var.environment}/backend/docker"
+      SNS_TOPIC_ARN         = "arn:aws:sns:us-west-1:396913719177:develop-CreatorProfileAnalyticsTopic"
+    }
+  }
+
+  layers = [
+    aws_lambda_layer_version.httpx_layer.arn,
+    aws_lambda_layer_version.boto3_layer.arn
+  ]
 }

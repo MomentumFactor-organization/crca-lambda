@@ -42,6 +42,8 @@ resource "aws_lambda_permission" "apigw_lambda_permission" {
   function_name = "${var.environment}-phyllo-profile-analytics"
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/*/*"
+
+  depends_on = [aws_lambda_function.phyllo_profile_analytics]
 }
 resource "aws_api_gateway_deployment" "creator_catalyst_integrations_deployment" {
   rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
@@ -88,9 +90,6 @@ resource "aws_api_gateway_usage_plan_key" "api_usage_plan_key" {
   key_id        = aws_api_gateway_api_key.api_key.id
   key_type      = "API_KEY"
 }
-data "aws_lambda_function" "phyllo_profile_analytics" {
-  function_name = "${var.environment}-phyllo-profile-analytics"
-}
 data "aws_region" "current" {}
 resource "aws_api_gateway_integration" "post_phyllo_profile_analytics_initiate_integration" {
   rest_api_id             = aws_api_gateway_rest_api.creator_catalyst_integrations.id
@@ -98,7 +97,9 @@ resource "aws_api_gateway_integration" "post_phyllo_profile_analytics_initiate_i
   http_method             = aws_api_gateway_method.post_phyllo_profile_analytics_initiate.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${data.aws_lambda_function.phyllo_profile_analytics.arn}/invocations"
+  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.phyllo_profile_analytics.arn}/invocations"
+
+  depends_on = [aws_lambda_function.phyllo_profile_analytics]
 }
 
 resource "aws_api_gateway_integration" "get_phyllo_profile_analytics_status_integration" {
@@ -107,6 +108,6 @@ resource "aws_api_gateway_integration" "get_phyllo_profile_analytics_status_inte
   http_method             = aws_api_gateway_method.get_phyllo_profile_analytics_status.http_method
   integration_http_method = "GET"
   type                    = "AWS_PROXY"
-  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${data.aws_lambda_function.phyllo_profile_analytics.arn}/invocations"
+  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.phyllo_profile_analytics.arn}/invocations"
 }
 
