@@ -111,3 +111,79 @@ resource "aws_api_gateway_integration" "get_phyllo_profile_analytics_status_inte
   uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.phyllo_profile_analytics.arn}/invocations"
 }
 
+#
+
+resource "aws_api_gateway_resource" "report_processing" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  parent_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.root_resource_id
+  path_part   = "reportprocessing"
+}
+
+resource "aws_api_gateway_resource" "unitary_wh" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  parent_id   = aws_api_gateway_rest_api.creator_catalyst_integrations.root_resource_id
+  path_part   = "unitarywh"
+}
+
+resource "aws_api_gateway_method" "post_report_processing" {
+  rest_api_id      = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id      = aws_api_gateway_resource.report_processing.id
+  http_method      = "POST"
+  authorization    = "NONE"
+  api_key_required = false
+  request_validator_id = null
+}
+
+resource "aws_api_gateway_method" "post_unitary_wh" {
+  rest_api_id      = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id      = aws_api_gateway_resource.unitary_wh.id
+  http_method      = "POST"
+  authorization    = "NONE"
+  api_key_required = false
+  request_validator_id = null
+}
+
+resource "aws_lambda_permission" "apigw_lambda_permission_unitary_wh" {
+  statement_id  = "AllowAPIGatewayInvokeUnitaryWH"
+  action        = "lambda:InvokeFunction"
+  function_name = "CreatorCatalyst-Unitary-Webhook"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/*/*"
+}
+
+resource "aws_api_gateway_method_settings" "post_unitary_wh_sdk_operation" {
+  rest_api_id = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  stage_name  = var.environment
+  method_path = "unitarywh/POST"
+
+  settings {
+    metrics_enabled = false
+    logging_level   = "INFO"
+  }
+}
+
+resource "aws_lambda_permission" "apigw_lambda_permission_report_processing" {
+  statement_id  = "AllowAPIGatewayInvokeReportProcessing"
+  action        = "lambda:InvokeFunction"
+  function_name = "CreatorsCatalyst-ProcessCreatorReport"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/*/*"
+}
+
+resource "aws_api_gateway_integration" "post_report_processing_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id             = aws_api_gateway_resource.report_processing.id
+  http_method             = aws_api_gateway_method.post_report_processing.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.process_creator_report.arn}/invocations"
+}
+
+resource "aws_api_gateway_integration" "post_unitary_wh_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id             = aws_api_gateway_resource.unitary_wh.id
+  http_method             = aws_api_gateway_method.post_unitary_wh.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.unitary_webhook.arn}/invocations"
+}
