@@ -269,3 +269,24 @@ resource "aws_lambda_function" "phyllo_profile_analytics" {
     aws_lambda_layer_version.boto3_layer.arn
   ]
 }
+
+resource "aws_lambda_function" "phyllo_profile_analytics_navigator" {
+  filename      = "compressed/${var.environment}-phyllo-profile-analytics-navigator.zip"
+  function_name = "${var.environment}-phyllo-profile-analytics-navigator"
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.10"
+  role          = data.aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      SECRET_MANAGER_NAME = "${var.environment}/backend/docker"
+    }
+  }
+
+  layers = [
+    aws_lambda_layer_version.boto3_layer.arn
+  ]
+
+  memory_size = 256
+  timeout     = 60
+}
