@@ -56,8 +56,15 @@ def lambda_handler(event, context):
         }
 
     navigation = {
-        'prev': items[current_index - 1]['platform_username'] if current_index > 0 else None,
-        'next': items[current_index + 1]['platform_username'] if current_index < len(items) - 1 else None
+        'prev': {
+            'platform_username': items[current_index - 1]['platform_username'],
+            'match': f"{round(float(items[current_index - 1]['match']) * 100, 2)}"
+        } if current_index > 0 else None,
+        'next': {
+            'platform_username': items[current_index + 1]['platform_username'],
+            'match': f"{round(float(items[current_index + 1]['match']) * 100, 2)}"
+        } if current_index < len(items) - 1 else None,
+        'result_uuid': result_uuid
     }
 
     return {
