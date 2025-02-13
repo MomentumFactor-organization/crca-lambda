@@ -126,29 +126,29 @@ resource "aws_api_gateway_resource" "unitary_wh" {
 }
 
 resource "aws_api_gateway_method" "post_report_processing" {
-  rest_api_id      = aws_api_gateway_rest_api.creator_catalyst_integrations.id
-  resource_id      = aws_api_gateway_resource.report_processing.id
-  http_method      = "POST"
-  authorization    = "NONE"
-  api_key_required = false
+  rest_api_id          = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id          = aws_api_gateway_resource.report_processing.id
+  http_method          = "POST"
+  authorization        = "NONE"
+  api_key_required     = false
   request_validator_id = null
 }
 
 resource "aws_api_gateway_method" "post_unitary_wh" {
-  rest_api_id      = aws_api_gateway_rest_api.creator_catalyst_integrations.id
-  resource_id      = aws_api_gateway_resource.unitary_wh.id
-  http_method      = "POST"
-  authorization    = "NONE"
-  api_key_required = false
+  rest_api_id          = aws_api_gateway_rest_api.creator_catalyst_integrations.id
+  resource_id          = aws_api_gateway_resource.unitary_wh.id
+  http_method          = "POST"
+  authorization        = "NONE"
+  api_key_required     = false
   request_validator_id = null
 }
 
 resource "aws_lambda_permission" "apigw_lambda_permission_unitary_wh" {
   statement_id  = "AllowAPIGatewayInvokeUnitaryWH"
   action        = "lambda:InvokeFunction"
-  function_name = "CreatorCatalyst-Unitary-Webhook"
+  function_name = aws_lambda_function.unitary_webhook.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}//POST/unitarywh"
 }
 
 resource "aws_api_gateway_method_settings" "post_unitary_wh_sdk_operation" {
@@ -160,14 +160,16 @@ resource "aws_api_gateway_method_settings" "post_unitary_wh_sdk_operation" {
     metrics_enabled = false
     logging_level   = "INFO"
   }
+
+  depends_on = [aws_api_gateway_account.apigateway_account]
 }
 
 resource "aws_lambda_permission" "apigw_lambda_permission_report_processing" {
   statement_id  = "AllowAPIGatewayInvokeReportProcessing"
   action        = "lambda:InvokeFunction"
-  function_name = "CreatorsCatalyst-ProcessCreatorReport"
+  function_name = aws_lambda_function.process_creator_report.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/POST/reportprocessing"
 }
 
 resource "aws_api_gateway_integration" "post_report_processing_integration" {
@@ -186,4 +188,30 @@ resource "aws_api_gateway_integration" "post_unitary_wh_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.unitary_webhook.arn}/invocations"
+}
+resource "aws_iam_role" "apigateway_logging_role" {
+  name = "APIGatewayCloudWatchLogsRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "apigateway_logging_attachment" {
+  name       = "APIGatewayLoggingAttachment"
+  roles      = [aws_iam_role.apigateway_logging_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
+resource "aws_api_gateway_account" "apigateway_account" {
+  cloudwatch_role_arn = aws_iam_role.apigateway_logging_role.arn
 }
