@@ -1,4 +1,4 @@
-name: Deploy phylloprofileanalytics
+name: Deploy phylloprofileanalyticsnavigation
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - staging
       - production
     paths:
-      - 'lambdas/phyllo-profile-analytics/**'
+      - 'lambdas/phyllo-profile-analytics-navigation/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -61,7 +61,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ env.AWS_REGION }}
-          FUNCTION: 'phyllo-profile-analytics'
+          FUNCTION: 'phyllo-profile-analytics-navigation'
         run: |
           echo "Deploying to environment: $ENVIRONMENT in region: $AWS_REGION"
           rm -f compressed/${ENVIRONMENT}-${FUNCTION}.zip

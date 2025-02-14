@@ -68,11 +68,11 @@ resource "aws_lambda_permission" "apigw_lambda_permission" {
 resource "aws_lambda_permission" "apigw_lambda_permission_navi" {
   statement_id  = "AllowAPIGatewayInvokeNavi"
   action        = "lambda:InvokeFunction"
-  function_name = "${var.environment}-phyllo-profile-analytics-navigator"
+  function_name = "${var.environment}-phyllo-profile-analytics-navigation"
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.creator_catalyst_integrations.execution_arn}/*/POST/phyllo-profile-analytics/navi"
 
-  depends_on = [aws_lambda_function.phyllo_profile_analytics_navigator]
+  depends_on = [aws_lambda_function.phyllo_profile_analytics_navigation]
 }
 
 resource "aws_api_gateway_deployment" "creator_catalyst_integrations_deployment" {
@@ -150,9 +150,9 @@ resource "aws_api_gateway_integration" "post_phyllo_profile_analytics_navi_integ
   http_method             = aws_api_gateway_method.post_phyllo_profile_analytics_navi.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.phyllo_profile_analytics_navigator.arn}/invocations"
+  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.phyllo_profile_analytics_navigation.arn}/invocations"
 
-  depends_on = [aws_lambda_function.phyllo_profile_analytics_navigator]
+  depends_on = [aws_lambda_function.phyllo_profile_analytics_navigation]
 }
 
 resource "aws_api_gateway_resource" "report_processing" {

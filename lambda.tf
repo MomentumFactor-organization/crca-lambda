@@ -270,9 +270,9 @@ resource "aws_lambda_function" "phyllo_profile_analytics" {
   ]
 }
 
-resource "aws_lambda_function" "phyllo_profile_analytics_navigator" {
-  filename      = "compressed/${var.environment}-phyllo-profile-analytics-navigator.zip"
-  function_name = "${var.environment}-phyllo-profile-analytics-navigator"
+resource "aws_lambda_function" "phyllo_profile_analytics_navigation" {
+  filename      = "compressed/${var.environment}-phyllo-profile-analytics-navigation.zip"
+  function_name = "${var.environment}-phyllo-profile-analytics-navigation"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
   role          = data.aws_iam_role.lambda_role.arn
